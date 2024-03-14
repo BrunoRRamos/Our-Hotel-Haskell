@@ -3,4 +3,4 @@ module Lib
     ) where
 
 someFunc :: IO ()
-someFunc = putStrLn "BATATA"
+someFunc = putStrLn "Da Checkout dessa branch s2"
