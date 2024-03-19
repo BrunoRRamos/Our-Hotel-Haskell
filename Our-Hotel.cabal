@@ -25,7 +25,11 @@ source-repository head
 
 library
   exposed-modules:
-      Lib
+      CreateUser
+      Database
+      MainMenu
+      Rooms
+      Schema
   other-modules:
       Paths_Our_Hotel
   autogen-modules:
@@ -35,6 +39,11 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , beam-core
+    , beam-migrate
+    , beam-sqlite
+    , sqlite-simple
+    , text
   default-language: Haskell2010
 
 executable Our-Hotel-exe
@@ -49,19 +58,9 @@ executable Our-Hotel-exe
   build-depends:
       Our-Hotel
     , base >=4.7 && <5
-  default-language: Haskell2010
-
-test-suite Our-Hotel-test
-  type: exitcode-stdio-1.0
-  main-is: Spec.hs
-  other-modules:
-      Paths_Our_Hotel
-  autogen-modules:
-      Paths_Our_Hotel
-  hs-source-dirs:
-      test
-  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      Our-Hotel
-    , base >=4.7 && <5
+    , beam-core
+    , beam-migrate
+    , beam-sqlite
+    , sqlite-simple
+    , text
   default-language: Haskell2010
