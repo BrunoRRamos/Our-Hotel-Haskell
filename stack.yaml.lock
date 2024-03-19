@@ -3,7 +3,21 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: beam-migrate-0.5.2.1@sha256:1ad12bcf5c6e092b9dd5f2a8c23f62dde07bb9e04198b0f59dc5fac855d18bf8,4924
+    pantry-tree:
+      sha256: cc5024fae77beeca8c7e24bc00f1e04474cfc23461b41d2cd10ddcce52f764ba
+      size: 1721
+  original:
+    hackage: beam-migrate-0.5.2.1@sha256:1ad12bcf5c6e092b9dd5f2a8c23f62dde07bb9e04198b0f59dc5fac855d18bf8,4924
+- completed:
+    hackage: beam-sqlite-0.5.3.0@sha256:7f2259583370e7cd81d822f6dba09807e95928c624eb95fa022fe83e17dec774,3671
+    pantry-tree:
+      sha256: 07145387d69a8f73aeda7303d7101db7166e329ca79c374aa4eaf8145691a5a4
+      size: 988
+  original:
+    hackage: beam-sqlite-0.5.3.0@sha256:7f2259583370e7cd81d822f6dba09807e95928c624eb95fa022fe83e17dec774,3671
 snapshots:
 - completed:
     sha256: 2fdd7d3e54540062ef75ca0a73ca3a804c527dbf8a4cadafabf340e66ac4af40
