@@ -1,6 +1,8 @@
 module Main (main) where
 
-import Lib
+import MainMenu
 
 main :: IO ()
-main = someFunc
+main = do
+  putStrLn "Hello from Hotel Haskell!"
+  loop []
