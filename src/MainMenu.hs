@@ -3,7 +3,12 @@ module MainMenu
   )
 where
 
-import CreateUser (createUser)
+import Data.Time.Format
+import Database (startDb)
+import Models.Reservation (Reservation (..), createReservation, getReservation)
+import Models.Room (Room (..), createRoom, getRoom)
+import Models.Service (Service (..), ServiceType (..), createService, getService)
+import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
 import Rooms (roomsLoop)
 import System.Exit (die)
 import Util.LoginLoop (loginLoop)
@@ -11,23 +16,24 @@ import Util.LoginLoop (loginLoop)
 loop :: [String] -> IO ()
 loop args = do
   conn <- startDb
+  loginLoop args
   putStrLn "\nAvailable commands:"
-  putStrLn "  login"
-  putStrLn "  clients"
-  putStrLn "  room"
-  putStrLn "  service"
-  putStrLn " test"
-  putStrLn "  exit - Quit the program"
+  putStrLn "1.  Rooms"
+  putStrLn "2.  test - create client"
+  putStrLn "3.  test - create room and reservation"
+  putStrLn "4.  test - create service"
+  putStrLn "5.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
   case head nextArgs of
-    "login" -> do
+    "0" -> do
       loginLoop args
-    "room" -> do
+    "1" -> do
       roomsLoop args
     -- FOR TESTING PURPOSES
     "2" -> do
+      {-
       createUser
         conn
         User
@@ -38,8 +44,11 @@ loop args = do
             _isActive = True,
             _role = ADMIN
           }
+      -}
       user <- getUser conn "007@gmail.com"
+      allUsers <- getAllUsers conn
       print user
+      print allUsers
       print $ _role user
       loop args
     "3" -> do

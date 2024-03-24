@@ -59,3 +59,6 @@ getUser conn email = do
   case _user of
     Just user -> return user
     Nothing -> error "User not found"
+
+getAllUsers :: Connection -> IO [User]
+getAllUsers conn = query_ conn "SELECT * FROM user" :: IO [User]
