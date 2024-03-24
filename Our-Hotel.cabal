@@ -27,6 +27,8 @@ library
   exposed-modules:
       CreateUser
       Database
+      Lib
+      Login
       MainMenu
       Rooms
       Schema
