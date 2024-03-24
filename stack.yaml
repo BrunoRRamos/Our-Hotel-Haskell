@@ -2,12 +2,9 @@ resolver:
   url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/22/11.yaml
 
 packages:
-- .
+  - .
 
 allow-newer: true
 
 extra-deps:
-- beam-migrate-0.5.2.1@sha256:1ad12bcf5c6e092b9dd5f2a8c23f62dde07bb9e04198b0f59dc5fac855d18bf8,4924
-- beam-sqlite-0.5.3.0@sha256:7f2259583370e7cd81d822f6dba09807e95928c624eb95fa022fe83e17dec774,3671
-
-
+  - dates-0.2.3.2@sha256:ba1534b90fa24e11becec3b3d8564198144591ddff6f4a472c8b153bc665309f,2311
