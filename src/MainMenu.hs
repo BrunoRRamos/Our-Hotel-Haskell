@@ -9,9 +9,10 @@ import Data.Time.Format
 import Database (startDb)
 import Models.Reservation (Reservation (..), createReservation, getReservation)
 import Models.Room (Room (..), createRoom, getRoom)
-import Models.Service (Service (..), ServiceType (..), createService, getService)
+import Models.Service (Service (..), ServiceType (..), createService, getService, printService, getAllServices)
 import Models.User (Role (..), User (..), createUser, getUser)
 import Rooms (roomsLoop)
+import Controller.Hospede (requisitarServicoDeQuarto)
 import System.Exit (die)
 
 loop :: [String] -> IO ()
@@ -22,7 +23,8 @@ loop args = do
   putStrLn "2.  test - create client"
   putStrLn "3.  test - create room and reservation"
   putStrLn "4.  test - create service"
-  putStrLn "5.  exit - Quit the program"
+  putStrLn "5.  test - get all services"
+  putStrLn "6.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
@@ -75,18 +77,25 @@ loop args = do
 
       loop args
     "4" -> do
-      createService
-        conn
-        Service
-          { _reservationId = 1,
-            _type = MEAL,
-            _price = 50,
-            _description = "A yummy yummy breakfast"
-          }
-      service <- getService conn 1
-      print service
+      requisitarServicoDeQuarto conn 3 100 CLEANING "testee"
+      -- createService
+      --   conn
+      --   Service
+      --     { _reservationId = 2,
+      --       _type = CLEANING,
+      --       _price = 100,
+      --       _description = "CLEANING"
+      --     }
+      -- service <- getService conn 1
+      -- print service
+      loop args
     "5" -> do
-      die "Goodbye!"
+      conn <- startDb
+      putStrLn "Listing all services:"
+      allServices <- getAllServices conn
+      mapM_ printService allServices
+      loop args
+    "6" -> die "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
       loop args

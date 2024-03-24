@@ -25,7 +25,9 @@ source-repository head
 
 library
   exposed-modules:
+      Controller.Hospede
       Database
+      Lib
       MainMenu
       Models.Reservation
       Models.Room
