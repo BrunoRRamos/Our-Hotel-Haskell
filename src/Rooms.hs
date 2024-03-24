@@ -1,6 +1,7 @@
 module Rooms
-    ( roomsLoop
-    ) where
+  ( roomsLoop,
+  )
+where
 
 roomsLoop :: [String] -> IO ()
 roomsLoop args = do
@@ -19,5 +20,5 @@ roomsLoop args = do
       roomsLoop args
     "exit" -> putStrLn "Goodbye!"
     _ -> do
-        putStrLn "Invalid command. Please try again."
-        roomsLoop args
+      putStrLn "Invalid command. Please try again."
+      roomsLoop args
