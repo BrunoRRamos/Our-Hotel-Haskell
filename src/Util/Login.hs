@@ -1,8 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
-module Login
-    ( login
-    ) where
+module Util.Login (login) where
 
 verifyEmail :: String -> [String] -> Bool
 verifyEmail email (h : t) = (h == email) || verifyEmail email t

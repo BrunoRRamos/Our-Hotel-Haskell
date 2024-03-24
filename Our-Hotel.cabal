@@ -28,10 +28,11 @@ library
       CreateUser
       Database
       Lib
-      Login
       MainMenu
       Rooms
       Schema
+      Util.Login
+      Util.LoginLoop
   other-modules:
       Paths_Our_Hotel
   autogen-modules:
