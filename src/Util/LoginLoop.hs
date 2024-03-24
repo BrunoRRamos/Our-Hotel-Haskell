@@ -41,7 +41,7 @@ loginLoop args = do
           _role = ADMIN
         } :: IO (Either SomeException ())
       case result of
-        Left e -> putStr ""
+        Left _ -> putStr ""
         Right _ -> putStr ""
 
       putStrLn "\nInsert your Email: "
