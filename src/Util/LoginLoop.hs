@@ -3,6 +3,9 @@ module Util.LoginLoop
     ) where
 
 import Util.Login (login)
+import Database (startDb)
+import Models.User (Role (..), User (..), getAllUsers)
+import System.Exit (die)
 
 userRedirect :: IO ()
 userRedirect = do
@@ -16,24 +19,26 @@ loginError args = do
 
 loginLoop :: [String] -> IO ()
 loginLoop args = do
+  conn <- startDb
+  users <- getAllUsers conn
   putStrLn "\nAvailable commands:"
-  putStrLn "  login"
-  putStrLn "  register"
-  putStrLn "  back"
-  putStrLn "  exit - Quit the program"
+  putStrLn "1.  Login"
+  putStrLn "2.  Register"
+  putStrLn "3.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
   case head nextArgs of
-    "login" -> do
+    "1" -> do
       putStrLn "\nInsert your Email: "
       email <- getLine
       putStrLn "\nInsert your Password: "
       password <- getLine
-      if login email password ["test", "senha"] then userRedirect else loginError args
-    "register" -> do
+      if login email password users then userRedirect else loginError args
+    "2" -> do
       loginLoop args
-    "exit" -> putStrLn "Goodbye!"
+    "3" -> do
+      die "Goodbye!"
     _ -> do
         putStrLn "Invalid command. Please try again."
         loginLoop args

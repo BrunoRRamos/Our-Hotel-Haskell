@@ -1,12 +1,15 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 
 module Util.Login (login) where
+import Models.User (User (..))
 
-verifyEmail :: String -> [String] -> Bool
-verifyEmail email (h : t) = (h == email) || verifyEmail email t
+verifyEmail :: String -> [User] -> Bool
+verifyEmail email [] = False
+verifyEmail email (h : t) = (_email h == email) || verifyEmail email t
 
-verifyPassword :: String -> [String] -> Bool
-verifyPassword password (h : t) = (h == password) || verifyPassword password t
+verifyPassword :: String -> [User] -> Bool
+verifyPassword password [] = False
+verifyPassword password (h : t) = (_password h == password) || verifyPassword password t
 
-login :: String -> String -> [String] -> Bool
+login :: String -> String -> [User] -> Bool
 login email password usersArr = verifyEmail email usersArr && verifyPassword password usersArr
