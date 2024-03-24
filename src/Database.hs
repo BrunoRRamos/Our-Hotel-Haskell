@@ -1,21 +1,18 @@
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE DeriveAnyClass #-}
-{-# OPTIONS_GHC -Wno-missing-export-lists #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "Use newtype instead of data" #-}
+{-# LANGUAGE OverloadedStrings #-}
 
-module Database where
-import Database.Beam
-    ( Generic,
-      defaultDbSettings,
-      Database,
-      DatabaseSettings,
-      TableEntity )
-import Schema
+module Database (startDb) where
 
-data HotelDb f = HotelDb
-                      { _users :: f (TableEntity UserT) }
-                        deriving (Generic, Database be)
+import Database.SQLite.Simple
+import Models.Reservation (createReservationTable)
+import Models.Room (createRoomTable)
+import Models.Service (createServiceTable)
+import Models.User (createUserTable)
 
-hotelDb :: DatabaseSettings be HotelDb
-hotelDb = defaultDbSettings
+startDb :: IO Connection
+startDb = do
+  conn <- open "hotel.db"
+  createUserTable conn
+  createReservationTable conn
+  createRoomTable conn
+  createServiceTable conn
+  return conn
