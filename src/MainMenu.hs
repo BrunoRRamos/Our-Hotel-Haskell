@@ -33,19 +33,7 @@ loop args = do
       roomsLoop args
     -- FOR TESTING PURPOSES
     "2" -> do
-      {-
-      createUser
-        conn
-        User
-          { _firstName = "James",
-            _lastName = "Bond",
-            _email = "007@gmail.com",
-            _password = "password",
-            _isActive = True,
-            _role = ADMIN
-          }
-      -}
-      user <- getUser conn "007@gmail.com"
+      user <- getUser conn "baseADM@gmail.com"
       allUsers <- getAllUsers conn
       print user
       print allUsers
