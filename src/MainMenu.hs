@@ -1,33 +1,30 @@
-{-# OPTIONS_GHC -Wno-missing-fields #-}
-
 module MainMenu
   ( loop,
   )
 where
 
-import Data.Time.Format
-import Database (startDb)
-import Models.Reservation (Reservation (..), createReservation, getReservation)
-import Models.Room (Room (..), createRoom, getRoom)
-import Models.Service (Service (..), ServiceType (..), createService, getService)
-import Models.User (Role (..), User (..), createUser, getUser)
+import CreateUser (createUser)
 import Rooms (roomsLoop)
 import System.Exit (die)
+import Util.LoginLoop (loginLoop)
 
 loop :: [String] -> IO ()
 loop args = do
   conn <- startDb
   putStrLn "\nAvailable commands:"
-  putStrLn "1.  rooms"
-  putStrLn "2.  test - create client"
-  putStrLn "3.  test - create room and reservation"
-  putStrLn "4.  test - create service"
-  putStrLn "5.  exit - Quit the program"
+  putStrLn "  login"
+  putStrLn "  clients"
+  putStrLn "  room"
+  putStrLn "  service"
+  putStrLn " test"
+  putStrLn "  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
   case head nextArgs of
-    "1" -> do
+    "login" -> do
+      loginLoop args
+    "room" -> do
       roomsLoop args
     -- FOR TESTING PURPOSES
     "2" -> do

@@ -32,6 +32,8 @@ library
       Models.Service
       Models.User
       Rooms
+      Util.Login
+      Util.LoginLoop
   other-modules:
       Paths_Our_Hotel
   autogen-modules:
