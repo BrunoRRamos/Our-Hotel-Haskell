@@ -12,7 +12,7 @@ import Models.Room (Room (..), createRoom, getRoom)
 import Models.Service (Service (..), ServiceType (..), createService, getService, printService, getAllServices)
 import Models.User (Role (..), User (..), createUser, getUser)
 import Rooms (roomsLoop)
-import Controller.Hospede (requisitarServicoDeQuarto)
+import Utils.Hospede (requestRoomService)
 import System.Exit (die)
 
 loop :: [String] -> IO ()
@@ -77,7 +77,7 @@ loop args = do
 
       loop args
     "4" -> do
-      requisitarServicoDeQuarto conn 3 100 CLEANING "testee"
+      requestRoomService conn 3 100 CLEANING "testee"
       -- createService
       --   conn
       --   Service

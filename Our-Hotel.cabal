@@ -25,7 +25,6 @@ source-repository head
 
 library
   exposed-modules:
-      Controller.Hospede
       Database
       Lib
       MainMenu
@@ -34,6 +33,7 @@ library
       Models.Service
       Models.User
       Rooms
+      Utils.Hospede
   other-modules:
       Paths_Our_Hotel
   autogen-modules:
