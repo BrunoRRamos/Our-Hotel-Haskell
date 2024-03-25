@@ -15,7 +15,7 @@ userRedirect = do
 
 loginError :: [String] -> IO ()
 loginError args = do
-    print "Login Error"
+    print "E-mail or Password Invalid, Try agin"
     loginLoop args
 
 loginLoop :: [String] -> IO ()
@@ -31,7 +31,6 @@ loginLoop args = do
   let nextArgs = words cmd
   case head nextArgs of
     "1" -> do
-      
       result <- try $ createUser conn User
         { _firstName = "adm",
           _lastName = "adm",
