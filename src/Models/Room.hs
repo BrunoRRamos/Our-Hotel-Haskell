@@ -1,9 +1,12 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Models.Room (module Models.Room) where
-
+  
 import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
@@ -55,3 +58,18 @@ getRoom conn roomId = do
   case _room of
     Just room -> return room
     Nothing -> error "Room not found"
+
+toggleRoomOccupied :: Connection -> Int -> IO ()
+toggleRoomOccupied conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = 'OCCUPIED' WHERE id = ?" (Only roomId)
+
+toggleRoomFree :: Connection -> Int -> IO ()
+toggleRoomFree conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = 'FREE' WHERE id = ?" (Only roomId)
+
+
+
+
+  
