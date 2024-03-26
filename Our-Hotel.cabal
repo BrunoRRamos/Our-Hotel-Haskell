@@ -33,6 +33,8 @@ library
       Models.Service
       Models.User
       Rooms
+      Util.Login
+      Util.LoginLoop
       Utils.Hospede
   other-modules:
       Paths_Our_Hotel
