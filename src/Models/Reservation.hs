@@ -4,7 +4,7 @@
 
 module Models.Reservation (module Models.Reservation) where
 
-import Models.Room (toggleRoomFree, toggleRoomOccupied )
+import Models.Room (toggleRoomFree, toggleRoomOccupied, toggleRoomReserved, getRoom )
 import Data.List (find)
 import Data.Time.Calendar
 import Data.Time.Format.ISO8601 (iso8601Show)
@@ -40,7 +40,8 @@ createReservationTable conn =
     \FOREIGN KEY (user_id) REFERENCES user(email))"
 
 createReservation :: Connection -> Reservation -> IO ()
-createReservation conn reservation =
+createReservation conn reservation = do
+  verifyRoom <- getRoom conn (_roomId reservation)
   execute
     conn
     "INSERT INTO reservation (room_id, user_id, start, end, rating, block_services) VALUES (?, ?, ?, ?, ?, ?)"
@@ -51,6 +52,7 @@ createReservation conn reservation =
       _rating reservation,
       _blockServices reservation
     )
+  toggleRoomReserved conn (_roomId reservation)
 
 getReservation :: Connection -> Int -> IO Reservation
 getReservation conn reservationId = do
