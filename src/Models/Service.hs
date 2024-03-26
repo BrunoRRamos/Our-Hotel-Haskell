@@ -57,3 +57,25 @@ getService conn serviceId = do
   case _service of
     Just service -> return service
     Nothing -> error "Service not found"
+
+getAllServices :: Connection -> IO [Service]
+getAllServices conn = query_ conn "SELECT * FROM service" :: IO [Service]
+
+printService :: Service -> IO ()
+printService service = do
+  putStrLn $ "Service ID: " ++ show (_id service)
+  putStrLn $ "Price: " ++ show (_price service)
+  putStrLn $ "Type: " ++ show (_type service)
+  putStrLn $ "Description: " ++ _description service
+  putStrLn $ "Reservation ID: " ++ show (_reservationId service)
+
+calculateTotalPrice :: Connection -> Int -> IO (Maybe Double)
+calculateTotalPrice conn reservationId = do
+  services <- query conn "SELECT * FROM service WHERE reservation_id = ?" (Only reservationId) :: IO [Service]
+  let totalPrice = sum $ map _price services
+  return $ if null services then Nothing else Just totalPrice
+
+instance Eq Service where
+    (Service id1 _ _ _ _) == (Service id2 _ _ _ _) = id1 == id2
+
+    
