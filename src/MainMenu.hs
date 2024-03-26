@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-missing-fields #-}
-
 module MainMenu
   ( loop,
   )
@@ -10,15 +8,17 @@ import Database (startDb)
 import Models.Reservation (Reservation (..), createReservation, getReservation)
 import Models.Room (Room (..), createRoom, getRoom)
 import Models.Service (Service (..), ServiceType (..), createService, getService)
-import Models.User (Role (..), User (..), createUser, getUser)
+import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
 import Rooms (roomsLoop)
 import System.Exit (die)
+import Util.LoginLoop (loginLoop)
 
 loop :: [String] -> IO ()
 loop args = do
   conn <- startDb
+  loginLoop args
   putStrLn "\nAvailable commands:"
-  putStrLn "1.  rooms"
+  putStrLn "1.  Rooms"
   putStrLn "2.  test - create client"
   putStrLn "3.  test - create room and reservation"
   putStrLn "4.  test - create service"
@@ -27,22 +27,16 @@ loop args = do
   cmd <- getLine
   let nextArgs = words cmd
   case head nextArgs of
+    "0" -> do
+      loginLoop args
     "1" -> do
       roomsLoop args
     -- FOR TESTING PURPOSES
     "2" -> do
-      createUser
-        conn
-        User
-          { _firstName = "James",
-            _lastName = "Bond",
-            _email = "007@gmail.com",
-            _password = "password",
-            _isActive = True,
-            _role = ADMIN
-          }
-      user <- getUser conn "007@gmail.com"
+      user <- getUser conn "baseADM@gmail.com"
+      allUsers <- getAllUsers conn
       print user
+      print allUsers
       print $ _role user
       loop args
     "3" -> do
