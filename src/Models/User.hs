@@ -52,13 +52,10 @@ createUser conn user =
     "INSERT INTO user (email, first_name, last_name, password, is_active, role) VALUES (?, ?, ?, ?, ?, ?)"
     (_email user, _firstName user, _lastName user, _password user, _isActive user, show $ _role user)
 
-getUser :: Connection -> String -> IO User
+getUser :: Connection -> String -> IO (Maybe User)
 getUser conn email = do
   users <- query_ conn "SELECT * FROM user" :: IO [User]
-  let _user = find (\user -> _email user == email) users
-  case _user of
-    Just user -> return user
-    Nothing -> error "User not found"
+  return $ find (\user -> _email user == email) users
 
 getAllUsers :: Connection -> IO [User]
 getAllUsers conn = query_ conn "SELECT * FROM user" :: IO [User]
