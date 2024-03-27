@@ -30,7 +30,7 @@ createMessageTable conn =
      \FOREIGN KEY (sender_id) REFERENCES user(id),\
      \FOREIGN KEY (recipient_id) REFERENCES user(id))"
 
-createMessage :: Connection -> Int -> Int -> Message -> IO ()
+createMessage :: Connection -> Int -> Int -> String -> IO ()
 createMessage conn _senderId _recipientId _message = do
     execute
      conn
@@ -42,8 +42,6 @@ createMessage conn _senderId _recipientId _message = do
 
 getAllMessages :: Connection -> IO [Message]
 getAllMessages conn = query_ conn "SELECT * FROM message" :: IO [Message]
-
-
 
 {-
 joinEqualSender :: [Message] -> Int -> [Message]
