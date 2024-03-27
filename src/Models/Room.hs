@@ -1,15 +1,18 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Models.Room (module Models.Room) where
-
+  
 import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
 
-data RoomStatus = AVAILABLE | OCCUPIED | BLOCKED deriving (Show, Eq)
+data RoomStatus = AVAILABLE | OCCUPIED | RESERVED | BLOCKED deriving (Show, Eq)
 
 instance FromField RoomStatus where
   fromField :: FieldParser RoomStatus
@@ -55,3 +58,18 @@ getRoom conn roomId = do
   case _room of
     Just room -> return room
     Nothing -> error "Room not found"
+
+toggleRoomReserved :: Connection -> Int -> IO ()
+toggleRoomReserved conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = RESERVED WHERE id = ?" (Only roomId)
+
+toggleRoomOccupied :: Connection -> Int -> IO ()
+toggleRoomOccupied conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = OCCUPIED WHERE id = ?" (Only roomId)
+
+toggleRoomFree :: Connection -> Int -> IO ()
+toggleRoomFree conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = FREE WHERE id = ?" (Only roomId)

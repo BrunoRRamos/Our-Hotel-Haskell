@@ -1,6 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use foldr" #-}
+{-# HLINT ignore "Use /=" #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Models.User (module Models.User) where
 
@@ -62,3 +66,7 @@ getUser conn email = do
 
 getAllUsers :: Connection -> IO [User]
 getAllUsers conn = query_ conn "SELECT * FROM user" :: IO [User]
+
+verifyEmailIsDisp :: [User] -> String -> Bool
+verifyEmailIsDisp [] email = True
+verifyEmailIsDisp (h : t) email = not (_email h == email) && verifyEmailIsDisp t email

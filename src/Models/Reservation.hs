@@ -4,6 +4,7 @@
 
 module Models.Reservation (module Models.Reservation) where
 
+import Models.Room (toggleRoomFree, toggleRoomOccupied, toggleRoomReserved, getRoom )
 import Data.List (find)
 import Data.Time.Calendar
 import Data.Time.Format.ISO8601 (iso8601Show)
@@ -39,7 +40,8 @@ createReservationTable conn =
     \FOREIGN KEY (user_id) REFERENCES user(email))"
 
 createReservation :: Connection -> Reservation -> IO ()
-createReservation conn reservation =
+createReservation conn reservation = do
+  verifyRoom <- getRoom conn (_roomId reservation)
   execute
     conn
     "INSERT INTO reservation (room_id, user_id, start, end, rating, block_services) VALUES (?, ?, ?, ?, ?, ?)"
@@ -50,6 +52,7 @@ createReservation conn reservation =
       _rating reservation,
       _blockServices reservation
     )
+  toggleRoomReserved conn (_roomId reservation)
 
 getReservation :: Connection -> Int -> IO Reservation
 getReservation conn reservationId = do
@@ -61,3 +64,22 @@ getReservation conn reservationId = do
 
 getAllReservations :: Connection -> IO [Reservation]
 getAllReservations conn = query_ conn "SELECT * FROM reservation" :: IO [Reservation]
+
+getRoomId :: Connection -> Int -> IO Int
+getRoomId conn reservationId = do
+  reservation <- getReservation conn reservationId
+  return (_roomId reservation )
+
+checkIn :: Connection -> Int -> IO String
+checkIn conn reservationId = do
+  roomId <- getRoomId conn reservationId
+  toggleRoomOccupied conn roomId
+  return "CheckIn done, Welcome !"
+
+checkOut :: Connection -> Int -> IO String
+checkOut conn reservationId = do
+  roomId <- getRoomId conn reservationId
+  toggleRoomFree conn roomId
+  -- Por função de avaliação
+  -- Por função que salva dados da estadia
+  return "CheckOut done, GoodBye !"
