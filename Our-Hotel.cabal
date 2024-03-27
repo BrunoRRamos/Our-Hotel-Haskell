@@ -27,6 +27,7 @@ library
   exposed-modules:
       Database
       MainMenu
+      Models.Message
       Models.Reservation
       Models.Room
       Models.Service
