@@ -4,7 +4,7 @@ module Util.LoginLoop
 
 import Util.Login (login)
 import Database (startDb)
-import Models.User (Role (..), User (..), createUser, getAllUsers)
+import Models.User (Role (..), User (..), createUser, getAllUsers, verifyEmailIsDisp)
 import System.Exit (die)
 import Control.Exception
 
@@ -17,6 +17,12 @@ loginError :: [String] -> IO ()
 loginError args = do
     print "E-mail or Password Invalid, Try agin"
     loginLoop args
+
+invalidEmailError :: [String] -> IO ()
+invalidEmailError args = do
+  print "Invalid E-mail !"
+  loginLoop args
+  
 
 loginLoop :: [String] -> IO ()
 loginLoop args = do
@@ -61,14 +67,18 @@ loginLoop args = do
       putStrLn "\nInsert your Password: "
       password <- getLine
 
-      createUser conn User
-        { _firstName = firstName,
-          _lastName = lastName,
-          _email = email,
-          _password = password,
-          _isActive = True,
-          _role = CLIENT
-        }
+      if verifyEmailIsDisp users email 
+        then 
+          createUser conn User
+          { _firstName = firstName,
+            _lastName = lastName,
+            _email = email,
+            _password = password,
+            _isActive = True,
+            _role = CLIENT
+          }
+        else
+          invalidEmailError args
 
     "3" -> do
       die "Goodbye!"
