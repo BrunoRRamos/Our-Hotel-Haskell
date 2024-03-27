@@ -1,27 +1,34 @@
+{-# OPTIONS_GHC -Wno-missing-fields #-}
+
 module MainMenu
   ( loop,
   )
 where
 
-import Data.Time.Format
 import Database (startDb)
-import Models.Reservation (Reservation (..), createReservation, getReservation)
-import Models.Room (Room (..), createRoom, getRoom)
-import Models.Service (Service (..), ServiceType (..), createService, getAllServices, getService)
-import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
+import Models.Service (getAllServices)
+import Models.User (getAllUsers, getUser)
 import Rooms (roomsLoop)
 import System.Exit (die)
 import Util.HospedeLoop (hospedeLoop)
+import Util.IO (clearScreen)
 import Util.LoginLoop (loginLoop)
+import Util.ReservationLoop (reservationLoop)
 
 loop :: [String] -> IO ()
 loop args = do
+  clearScreen
   conn <- startDb
-  loginLoop args
+  loggedUser <- loginLoop conn
+  let user = case loggedUser of
+        Just u -> u
+        Nothing -> error "User not found"
+  print user
+
   putStrLn "\nAvailable commands:"
   putStrLn "1.  Rooms"
-  putStrLn "2.  test - create client"
-  putStrLn "3.  test - create room and reservation"
+  putStrLn "2.  Reservations"
+  putStrLn "3.  test - create client"
   putStrLn "4.  test - create service"
   putStrLn "5.  test - get all services"
   putStrLn "6.  exit - Quit the program"
@@ -29,46 +36,19 @@ loop args = do
   cmd <- getLine
   let nextArgs = words cmd
   case head nextArgs of
-    "0" -> do
-      loginLoop args
     "1" -> do
       roomsLoop args
     -- FOR TESTING PURPOSES
     "2" -> do
-      user <- getUser conn "baseADM@gmail.com"
-      allUsers <- getAllUsers conn
-      print user
-      print allUsers
-      print $ _role user
+      _ <- reservationLoop conn user
       loop args
     "3" -> do
-      createRoom
-        conn
-        Room
-          { Models.Room._id = 505,
-            _dailyRate = 200,
-            _status = "AVAILABLE",
-            _occupancy = 2
-          }
-      room <- getRoom conn 505
-      print "room created!"
-      print room
-
-      let start = parseTimeOrError True defaultTimeLocale "%F" "2021-12-01"
-      let end = parseTimeOrError True defaultTimeLocale "%F" "2021-12-05"
-      createReservation
-        conn
-        Reservation
-          { _roomId = 505,
-            _userId = "007@gmail.com",
-            _start = start,
-            _end = end,
-            _blockServices = False,
-            _rating = Nothing
-          }
-      reservation <- getReservation conn 1
-      print reservation
-
+      _user <- getUser conn "baseADM@gmail.com"
+      allUsers <- getAllUsers conn
+      print allUsers
+      case _user of
+        Just u -> print u
+        Nothing -> print "User not found"
       loop args
     "4" -> do
       hospedeLoop args
