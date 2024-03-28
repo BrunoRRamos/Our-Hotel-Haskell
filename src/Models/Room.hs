@@ -12,7 +12,7 @@ import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
 
-data RoomStatus = AVAILABLE | OCCUPIED | RESERVED | BLOCKED deriving (Show, Eq)
+data RoomStatus = AVAILABLE | RESERVED | BLOCKED deriving (Show, Eq)
 
 instance FromField RoomStatus where
   fromField :: FieldParser RoomStatus
@@ -20,7 +20,7 @@ instance FromField RoomStatus where
     _field <- (fromField :: FieldParser String) f
     case _field of
       "AVAILABLE" -> return AVAILABLE
-      "OCCUPIED" -> return OCCUPIED
+      "RESERVED" -> return RESERVED
       "BLOCKED" -> return BLOCKED
       _ -> returnError ConversionFailed f "Unknown room status"
 
@@ -41,7 +41,7 @@ createRoomTable conn = do
     "CREATE TABLE IF NOT EXISTS room (\
     \id INTEGER PRIMARY KEY,\
     \daily_rate REAL NOT NULL,\
-    \status TEXT CHECK(status IN ('AVAILABLE', 'OCCUPIED', 'BLOCKED')) NOT NULL,\
+    \status TEXT CHECK(status IN ('AVAILABLE', 'RESERVED', 'BLOCKED')) NOT NULL,\
     \occupancy INTEGER NOT NULL)"
 
 createRoom :: Connection -> Room -> IO ()
@@ -62,14 +62,10 @@ getRoom conn roomId = do
 toggleRoomReserved :: Connection -> Int -> IO ()
 toggleRoomReserved conn roomId = do
   testRoom <- getRoom conn roomId
-  execute conn "UPDATE room SET status = RESERVED WHERE id = ?" (Only roomId)
+  execute conn "UPDATE room SET status = 'RESERVED' WHERE id = ?" (Only roomId)
 
-toggleRoomOccupied :: Connection -> Int -> IO ()
-toggleRoomOccupied conn roomId = do
-  testRoom <- getRoom conn roomId
-  execute conn "UPDATE room SET status = OCCUPIED WHERE id = ?" (Only roomId)
 
-toggleRoomFree :: Connection -> Int -> IO ()
-toggleRoomFree conn roomId = do
+toggleRoomAvailiable :: Connection -> Int -> IO ()
+toggleRoomAvailiable conn roomId = do
   testRoom <- getRoom conn roomId
-  execute conn "UPDATE room SET status = FREE WHERE id = ?" (Only roomId)
+  execute conn "UPDATE room SET status = 'AVAILABLE' WHERE id = ?" (Only roomId)

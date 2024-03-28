@@ -4,7 +4,7 @@
 
 module Models.Reservation (module Models.Reservation) where
 
-import Models.Room (toggleRoomFree, toggleRoomOccupied, toggleRoomReserved, getRoom )
+import Models.Room (toggleRoomAvailiable, toggleRoomReserved, getRoom )
 import Data.List (find)
 import Data.Time.Calendar
 import Data.Time.Format.ISO8601 (iso8601Show)
@@ -70,16 +70,16 @@ getRoomId conn reservationId = do
   reservation <- getReservation conn reservationId
   return (_roomId reservation )
 
-checkIn :: Connection -> Int -> IO String
+checkIn :: Connection -> Int -> IO ()
 checkIn conn reservationId = do
   roomId <- getRoomId conn reservationId
-  toggleRoomOccupied conn roomId
-  return "CheckIn done, Welcome !"
+  toggleRoomReserved conn roomId
+  putStr "CheckIn done, Welcome !"
 
-checkOut :: Connection -> Int -> IO String
+checkOut :: Connection -> Int -> IO ()
 checkOut conn reservationId = do
   roomId <- getRoomId conn reservationId
-  toggleRoomFree conn roomId
+  toggleRoomAvailiable conn roomId
   -- Por função de avaliação
   -- Por função que salva dados da estadia
-  return "CheckOut done, GoodBye !"
+  putStr "CheckOut done, GoodBye !"

@@ -33,6 +33,7 @@ library
       Models.Service
       Models.User
       Rooms
+      Util.CheckInOutLoop
       Util.Login
       Util.LoginLoop
   other-modules:
