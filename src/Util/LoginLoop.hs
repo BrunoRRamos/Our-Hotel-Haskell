@@ -1,9 +1,6 @@
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 
-module Util.LoginLoop
-  ( loginLoop,
-  )
-where
+module Util.LoginLoop (loginLoop) where
 
 import Database.SQLite.Simple
 import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
