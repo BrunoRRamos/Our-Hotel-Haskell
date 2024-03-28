@@ -7,11 +7,11 @@ import Data.Time.Format
 import Database (startDb)
 import Models.Reservation (Reservation (..), createReservation, getReservation)
 import Models.Room (Room (..), createRoom, getRoom)
-import Models.Service (Service (..), ServiceType (..), createService, getService, printService, getAllServices)
+import Models.Service (Service (..), ServiceType (..), createService, getAllServices, getService, printService)
 import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
 import Rooms (roomsLoop)
-import Utils.Hospede (requestRoomService)
 import System.Exit (die)
+import Util.HospedeLoop (hospedeLoop)
 import Util.LoginLoop (loginLoop)
 
 loop :: [String] -> IO ()
@@ -71,18 +71,7 @@ loop args = do
 
       loop args
     "4" -> do
-      requestRoomService conn 3 100 CLEANING "testee"
-      -- createService
-      --   conn
-      --   Service
-      --     { _reservationId = 2,
-      --       _type = CLEANING,
-      --       _price = 100,
-      --       _description = "CLEANING"
-      --     }
-      -- service <- getService conn 1
-      -- print service
-      loop args
+      hospedeLoop args
     "5" -> do
       conn <- startDb
       putStrLn "Listing all services:"
