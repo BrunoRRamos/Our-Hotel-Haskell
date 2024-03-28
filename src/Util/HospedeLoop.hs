@@ -1,16 +1,34 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Util.HospedeLoop
     ( hospedeLoop
     ) where
 
 import Util.Hospede (requestRoomService)
 import Database (startDb)
-import Models.Service (ServiceType (..))
+import Models.Service (ServiceType (CLEANING, MEAL))
+import Models.Reservation (createReservation, Reservation(..))
 import System.Exit (die)
-import Control.Exception
+import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
+import Control.Exception (try, SomeException)
+
+instance Eq Reservation where
+  (==) res1 res2 = _id res1 == _id res2
 
 hospedeLoop :: [String] -> IO ()
 hospedeLoop args = do
   conn <- startDb
+  let start = parseTimeOrError True defaultTimeLocale "%F" "2021-12-01"
+  let end = parseTimeOrError True defaultTimeLocale "%F" "2021-12-05"
+  let res = Reservation
+        { _id = 1,
+          _roomId = 505,
+          _userId = "007@gmail.com",
+          _start = start,
+          _end = end,
+          _blockServices = False,
+          _rating = Nothing
+        }
   putStrLn "\nAvailable commands:"
   putStrLn "1. Request room cleaning"
   putStrLn "2. Request meal service"
@@ -21,19 +39,40 @@ hospedeLoop args = do
   case head nextArgs of
     "1" -> do
       putStrLn "\nRequesting room cleaning..."
-      result <- try $ requestRoomService conn 1 50 CLEANING "Clean the room" :: IO (Either SomeException ())
-      case result of
-        Left _ -> putStrLn "Failed to request room cleaning."
-        Right _ -> putStrLn "Room cleaning requested successfully."
-      hospedeLoop args
+      putStrLn "Enter reservation ID:"
+      reservationId <- readLn :: IO Int
+      if reservationId == _id res
+        then do
+          putStrLn "Enter price:"
+          price <- readLn :: IO Double
+          putStrLn "Enter description:"
+          description <- getLine
+          result <- try $ requestRoomService conn reservationId price CLEANING description :: IO (Either SomeException ())
+          case result of
+            Left _ -> putStrLn "Failed to request room cleaning."
+            Right _ -> putStrLn "Cleaning service requested successfully!"
+          hospedeLoop args
+        else putStrLn "Reservation ID does not exist."
 
     "2" -> do
       putStrLn "\nRequesting meal service..."
-      result <- try $ requestRoomService conn 1 50 MEAL "Deliver a yummy meal" :: IO (Either SomeException ())
-      case result of
-        Left _ -> putStrLn "Failed to request meal service."
-        Right _ -> putStrLn "Meal service requested successfully."
+      putStrLn "Enter reservation ID:"
+      reservationId <- readLn :: IO Int
+      if reservationId == _id res
+        then do
+          putStrLn "Enter price:"
+          price <- readLn :: IO Double
+          putStrLn "Enter description:"
+          description <- getLine
+          result <- try $ requestRoomService conn reservationId price MEAL description :: IO (Either SomeException ())
+          case result of
+            Left _ -> putStrLn "Failed to request meal service."
+            Right _ -> putStrLn "Meal service requested successfully!"
+          hospedeLoop args
+        else putStrLn "Reservation ID does not exist."
+
+    "3"-> putStrLn "Goodbye!"
+
+    _ -> do
+      putStrLn "Invalid command. Please try again."
       hospedeLoop args
-
-    "3" -> die "Goodbye!"
-

@@ -7,7 +7,7 @@ import Data.Time.Format
 import Database (startDb)
 import Models.Reservation (Reservation (..), createReservation, getReservation)
 import Models.Room (Room (..), createRoom, getRoom)
-import Models.Service (Service (..), ServiceType (..), createService, getAllServices, getService, printService)
+import Models.Service (Service (..), ServiceType (..), createService, getAllServices, getService)
 import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
 import Rooms (roomsLoop)
 import System.Exit (die)
@@ -76,7 +76,7 @@ loop args = do
       conn <- startDb
       putStrLn "Listing all services:"
       allServices <- getAllServices conn
-      mapM_ printService allServices
+      putStrLn $ unlines (map show allServices)
       loop args
     "6" -> die "Goodbye!"
     _ -> do

@@ -8,6 +8,7 @@ import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
+import Data.Maybe (listToMaybe)
 
 data ServiceType = CLEANING | MEAL deriving (Show)
 
@@ -27,7 +28,7 @@ data Service = Service
     _description :: String,
     _reservationId :: Int
   }
-  deriving (Generic, Show)
+  deriving (Generic)
 
 instance FromRow Service
 
@@ -50,30 +51,35 @@ createService conn service = do
     "INSERT INTO service (reservation_id, price, type, description) VALUES (?, ?, ?, ?)"
     (_reservationId service, _price service, show $ _type service, _description service)
 
-getService :: Connection -> Int -> IO Service
+
+getService :: Connection -> Int -> IO (Maybe Service)
 getService conn serviceId = do
   services <- query_ conn "SELECT * FROM service" :: IO [Service]
-  let _service = find (\service -> _id service == serviceId) services
-  case _service of
-    Just service -> return service
-    Nothing -> error "Service not found"
+  let maybeService = find (\service -> _id service == serviceId) services
+  return maybeService
+
 
 getAllServices :: Connection -> IO [Service]
 getAllServices conn = query_ conn "SELECT * FROM service" :: IO [Service]
 
-printService :: Service -> IO ()
-printService service = do
-  putStrLn $ "Service ID: " ++ show (_id service)
-  putStrLn $ "Price: " ++ show (_price service)
-  putStrLn $ "Type: " ++ show (_type service)
-  putStrLn $ "Description: " ++ _description service
-  putStrLn $ "Reservation ID: " ++ show (_reservationId service)
+instance Show Service where
+    show service =
+        "Service ID: " ++ show (_id service) ++ "\n" ++
+        "Price: " ++ show (_price service) ++ "\n" ++
+        "Type: " ++ show (_type service) ++ "\n" ++
+        "Description: " ++ _description service ++ "\n" ++
+        "Reservation ID: " ++ show (_reservationId service) ++ "\n"
+
 
 calculateTotalPrice :: Connection -> Int -> IO (Maybe Double)
 calculateTotalPrice conn reservationId = do
-  services <- query conn "SELECT * FROM service WHERE reservation_id = ?" (Only reservationId) :: IO [Service]
-  let totalPrice = sum $ map _price services
-  return $ if null services then Nothing else Just totalPrice
+  allServices <- getAllServices conn
+  let servicesForReservation = filter (\service -> _reservationId service == reservationId) allServices
+  let totalPrice = sum $ map _price servicesForReservation
+  if null servicesForReservation
+    then return Nothing
+    else return $ Just totalPrice
+
 
 instance Eq Service where
     (Service id1 _ _ _ _) == (Service id2 _ _ _ _) = id1 == id2

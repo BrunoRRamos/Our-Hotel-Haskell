@@ -4,14 +4,13 @@ module Rooms
 where
   
 import Database.SQLite.Simple
-import Models.Service (Service (..), ServiceType (..), createService, getService, getAllServices, printService, calculateTotalPrice)
+import Models.Service (Service (..), ServiceType (..), createService, getService, getAllServices, calculateTotalPrice)
 import Database (startDb)
-import Control.Monad (when)
 
 roomsLoop :: [String] -> IO ()
 roomsLoop args = do
   putStrLn "\nAvailable commands:"
-  putStrLn "1.  list_rooms"
+  putStrLn "1.  List all rooms"
   putStrLn "2.  get_room"
   putStrLn "3.  get_service_by_id"
   putStrLn "4.  sum_price_by_idReservation"
@@ -27,12 +26,15 @@ roomsLoop args = do
     "3" -> do
       conn <- startDb
       putStrLn "Enter service ID:"
-      serviceId <- getLine
-      let sid = read serviceId :: Int
-      service <- getService conn sid
-      when (service == Service 0 0 CLEANING "" 0) $ putStrLn "Service not found"
-      printService service
-      roomsLoop args
+      serviceId <- readLn :: IO Int
+      maybeService <- getService conn serviceId
+      case maybeService of
+        Just service -> do
+          putStrLn $ show service
+          roomsLoop args
+        Nothing -> do
+          putStrLn "Service not found"
+          roomsLoop args
     "4" -> do
       conn <- startDb
       putStrLn "Enter reservation ID:"
