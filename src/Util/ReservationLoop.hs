@@ -4,7 +4,8 @@
 
 module Util.ReservationLoop (reservationLoop) where
 
-import Control.Exception.Base (SomeException, catch)
+import Control.Exception (try)
+import Control.Monad (void)
 import Data.List (find)
 import Data.Time
 import Database.SQLite.Simple
@@ -12,39 +13,46 @@ import Models.Reservation
 import Models.Room
 import Models.User
 import Text.Read (readMaybe)
-import Util.IO (askForInput, clearScreen, parseDate)
+import Util.IO (OperationCancelledException, askForInput, clearScreen, parseBoolInput, parseDate, pressEnter)
 
-reservationLoop :: Connection -> User -> IO (Maybe Reservation)
+reservationLoop :: Connection -> User -> IO ()
 reservationLoop conn user = do
   clearScreen
   putStrLn
     "1. Make a reservation\n\
-    \2. Cancel a reservation\n\
-    \3. Go back"
+    \2. Edit a reservation\n\
+    \3. Cancel a reservation\n\
+    \4. Go back"
   cmd <- getLine
 
   case cmd of
     "1" -> do
-      reservation <-
-        catch
-          (makeReservation conn user)
-          ( \e ->
-              do
-                let _ = (e :: SomeException)
-                return Nothing
-          )
-      case reservation of
-        Nothing -> putStrLn "An error occurred while"
-        Just r -> do
-          putStrLn "Room booked successfully!"
-          putStrLn $ "Reservation id is:" ++ show (Models.Reservation._id r)
+      result <- try (makeReservation conn user) :: IO (Either OperationCancelledException (Maybe Reservation))
+      case result of
+        Left _ -> void (putStrLn "Operation cancelled!")
+        Right maybeReservation -> case maybeReservation of
+          Just _ -> putStrLn "Reservation made successfully!"
+          Nothing -> putStrLn "Failed to make a reservation."
 
-      putStrLn "\nPress enter to go back"
-      _ <- getLine
-
+      pressEnter
       reservationLoop conn user
-    -- "2" -> cancelReservation conn
-    "3" -> return Nothing
+    "2" -> do
+      result <- try (editReservation conn user) :: IO (Either OperationCancelledException (Maybe Reservation))
+      case result of
+        Left _ -> void (putStrLn "Operation cancelled!")
+        Right maybeReservation -> case maybeReservation of
+          Just _ -> putStrLn "Reservation updated successfully!"
+          Nothing -> putStrLn "Failed to update the reservation."
+      pressEnter
+      reservationLoop conn user
+    "3" -> do
+      result <- try (cancelReservation conn user) :: IO (Either OperationCancelledException Bool)
+      case result of
+        Left _ -> void (putStrLn "Operation cancelled!")
+        Right res -> if res then putStrLn "Reservation canceled successfully!" else putStrLn "Reservation not canceled!"
+      pressEnter
+      reservationLoop conn user
+    "4" -> return ()
     _ -> do
       print "Invalid command. Please try again"
       reservationLoop conn user
@@ -52,17 +60,55 @@ reservationLoop conn user = do
 makeReservation :: Connection -> User -> IO (Maybe Reservation)
 makeReservation conn user = do
   clearScreen
+  reservation <- reservationForm conn user
+
+  reservationId <-
+    createReservation
+      conn
+      reservation
+  getReservation conn (fromIntegral reservationId :: Int)
+
+editReservation :: Connection -> User -> IO (Maybe Reservation)
+editReservation conn user = do
+  clearScreen
+  reservation <- getReservationById conn
+
+  if _userId reservation /= Models.User._email user
+    then putStrLn "You are not allowed to edit this reservation!" >> return Nothing
+    else do
+      putStrLn "Reservation found!\n"
+      let reservationId = Models.Reservation._id reservation
+      form <- reservationForm conn user
+
+      updateReservation conn reservationId (form {Models.Reservation._id = 0})
+      getReservation conn reservationId
+
+cancelReservation :: Connection -> User -> IO Bool
+cancelReservation conn user = do
+  clearScreen
+  reservation <- getReservationById conn
+  if _userId reservation /= Models.User._email user
+    then putStrLn "You are not allowed to cancel this reservation!" >> return False
+    else do
+      putStrLn "Reservation found!\n"
+      cmd <- askForInput "Do you want to cancel this reservation? (y/n)" parseBoolInput
+      if cmd
+        then deleteReservation conn (Models.Reservation._id reservation) >> return True
+        else return False
+
+reservationForm :: Connection -> User -> IO Reservation
+reservationForm conn user = do
   start <- askForInput "Enter start date (YYYY-MM-DD): " parseAndValidateDate
   end <- askForInput "Enter end date (YYYY-MM-DD): " $ \str -> do
     day <- parseAndValidateDate str
-    case day of
-      Just d ->
-        if d < start
-          then do
-            putStrLn "End date has to greater than start date! Please try again"
-            return Nothing
-          else return $ Just d
-      Nothing -> return Nothing
+    maybe
+      (return Nothing)
+      ( \d ->
+          if d < start
+            then putStrLn "End date has to be greater than start date! Please try again" >> return Nothing
+            else return $ Just d
+      )
+      day
 
   rooms <- getAvailableRooms conn start end
   mapM_ printRoom rooms
@@ -76,52 +122,39 @@ makeReservation conn user = do
             Just _id -> return $ find (\room -> Models.Room._id room == _id) rooms
             Nothing -> return Nothing
       )
-  blockServices <- askForInput "Block services? (y/n): " parseBlockServices
+  blockServices <- askForInput "Block services? (y/n): " parseBoolInput
 
-  reservationId <-
-    createReservation
-      conn
-      Reservation
-        { _roomId = Models.Room._id room,
-          _start = start,
-          _end = end,
-          _blockServices = blockServices,
-          _userId = Models.User._email user,
-          _rating = Nothing
-        }
-  print reservationId
-  getReservation conn (fromIntegral reservationId :: Int)
-  where
-    validateDate :: Day -> IO (Maybe Day)
-    validateDate date = do
-      currentDay <- utctDay <$> getCurrentTime
-      if date >= currentDay then return $ Just date else return Nothing
+  return
+    Reservation
+      { _roomId = Models.Room._id room,
+        _start = start,
+        _end = end,
+        _blockServices = blockServices,
+        _userId = Models.User._email user,
+        _rating = Nothing
+      }
 
-    parseAndValidateDate :: String -> IO (Maybe Day)
-    parseAndValidateDate str = case parseDate str of
-      Just date -> validateDate date
-      Nothing -> clearScreen >> putStrLn "Invalid date. Please try again." >> return Nothing
+validateDate :: Day -> IO (Maybe Day)
+validateDate date = do
+  currentDay <- utctDay <$> getCurrentTime
+  if date >= currentDay then return $ Just date else return Nothing
 
-    parseBlockServices :: String -> IO (Maybe Bool)
-    parseBlockServices str = case str of
-      "y" -> return $ Just True
-      "n" -> return $ Just False
-      _ -> putStrLn "Invalid input. Please try again." >> return Nothing
+getReservationById :: Connection -> IO Reservation
+getReservationById conn = do
+  askForInput
+    "\nEnter reservation id: "
+    ( \str -> do
+        let input = (readMaybe str :: Maybe Int)
+        case input of
+          Nothing -> putStrLn "Invalid reservation id! Please try again" >> return Nothing
+          Just i -> do
+            res <- getReservation conn i
+            maybe (putStrLn "Reservation not found! Please try again" >> return Nothing) (return . Just) res
+    )
 
-    printRoom :: Room -> IO ()
-    printRoom room =
-      putStrLn $ "Room " ++ show (Models.Room._id room) ++ " - $" ++ show (Models.Room._dailyRate room) ++ " per night"
+parseAndValidateDate :: String -> IO (Maybe Day)
+parseAndValidateDate str = maybe (return Nothing) validateDate (parseDate str)
 
--- let start = fromGregorian 2024 12 1
--- let end = fromGregorian 2024 12 15
--- print $ overlap start end Reservation {_start = fromGregorian 2024 12 1, _end = fromGregorian 2024 12 15} -- same day
--- print $ overlap start end Reservation {_start = fromGregorian 2024 11 20, _end = fromGregorian 2024 12 12} -- start before
--- print $ overlap start end Reservation {_start = fromGregorian 2024 12 12, _end = fromGregorian 2024 12 30} -- end after
--- print $ overlap start end Reservation {_start = fromGregorian 2024 12 12, _end = fromGregorian 2024 12 14} -- start and end inside
--- print $ overlap start end Reservation {_start = fromGregorian 2024 11 30, _end = fromGregorian 2024 12 20} -- start before and end after
--- print $ overlap start end Reservation {_start = fromGregorian 2024 11 10, _end = fromGregorian 2024 11 12} -- should be false
--- print $ overlap start end Reservation {_start = fromGregorian 2024 12 1, _end = fromGregorian 2024 12 12}
--- print $ overlap start end Reservation {_start = fromGregorian 2024 12 10, _end = fromGregorian 2024 12 15}
--- print $ overlap start end Reservation {_start = fromGregorian 2024 11 10, _end = fromGregorian 2024 12 1}
--- print $ overlap start end Reservation {_start = fromGregorian 2024 12 15, _end = fromGregorian 2024 12 18}
--- priquita <- getLine
+printRoom :: Room -> IO ()
+printRoom room =
+  putStrLn $ "Room " ++ show (Models.Room._id room) ++ " - $" ++ show (Models.Room._dailyRate room) ++ " per night"

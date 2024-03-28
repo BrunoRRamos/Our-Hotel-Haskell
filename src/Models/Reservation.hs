@@ -84,3 +84,21 @@ overlap start end reservation =
     || end > _start reservation && end < _end reservation -- starts after and end after
     || start < _start reservation && end > _end reservation -- starts after and ends before
     || start < _start reservation && end < _end reservation -- starts before and end after
+
+deleteReservation :: Connection -> Int -> IO ()
+deleteReservation conn reservationId = do
+  execute conn "DELETE FROM reservation WHERE id = ?" (Only reservationId)
+
+updateReservation :: Connection -> Int -> Reservation -> IO ()
+updateReservation conn reservationId reservation = do
+  execute
+    conn
+    "UPDATE reservation SET room_id = ?, user_id = ?, start = ?, end = ?, rating = ?, block_services = ? WHERE id = ?"
+    ( _roomId reservation,
+      _userId reservation,
+      iso8601Show $ _start reservation,
+      iso8601Show $ _end reservation,
+      _rating reservation,
+      _blockServices reservation,
+      reservationId
+    )
