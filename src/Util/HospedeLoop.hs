@@ -7,7 +7,7 @@ module Util.HospedeLoop
 import Util.Hospede (requestRoomService)
 import Database (startDb)
 import Models.Service (ServiceType (CLEANING, MEAL))
-import Models.Reservation (createReservation, Reservation(..))
+import Models.Reservation (createReservation, Reservation(..), ServiceStatus (..), getReservation)
 import System.Exit (die)
 import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
 import Control.Exception (try, SomeException)
@@ -27,7 +27,18 @@ hospedeLoop args = do
           _start = start,
           _end = end,
           _blockServices = False,
-          _rating = Nothing
+          _rating = Nothing,
+          _serviceStatus = "FREE"
+        }
+  let resND = Reservation
+        { _id = 2,
+          _roomId = 300,
+          _userId = "teste@gmail.com",
+          _start = start,
+          _end = end,
+          _blockServices = False,
+          _rating = Nothing,
+          _serviceStatus = "NOT DISTURB"
         }
   putStrLn "\nAvailable commands:"
   putStrLn "1. Request room cleaning"
@@ -41,36 +52,49 @@ hospedeLoop args = do
       putStrLn "\nRequesting room cleaning..."
       putStrLn "Enter reservation ID:"
       reservationId <- readLn :: IO Int
-      if reservationId == _id res
+      if reservationId == _id res || reservationId == _id resND
         then do
-          putStrLn "Enter price:"
-          price <- readLn :: IO Double
-          putStrLn "Enter description:"
-          description <- getLine
-          result <- try $ requestRoomService conn reservationId price CLEANING description :: IO (Either SomeException ())
-          case result of
-            Left _ -> putStrLn "Failed to request room cleaning."
-            Right _ -> putStrLn "Cleaning service requested successfully!"
-          hospedeLoop args
+          maybeReservation <- getReservation conn reservationId
+          case maybeReservation of
+            Just reservation ->
+              if _serviceStatus reservation == "FREE"
+                then do
+                  putStrLn "Enter price:"
+                  price <- readLn :: IO Double
+                  putStrLn "Enter description:"
+                  description <- getLine
+                  result <- try $ requestRoomService conn reservationId price CLEANING description :: IO (Either SomeException ())
+                  case result of
+                    Left _ -> putStrLn "Failed to request room cleaning."
+                    Right _ -> putStrLn "Cleaning service requested successfully!"
+                  hospedeLoop args
+                else putStrLn "Service status must be FREE to create a service."
+            Nothing -> putStrLn "Reservation not found."
         else putStrLn "Reservation ID does not exist."
 
     "2" -> do
       putStrLn "\nRequesting meal service..."
       putStrLn "Enter reservation ID:"
       reservationId <- readLn :: IO Int
-      if reservationId == _id res
+      if reservationId == _id res || reservationId == _id resND
         then do
-          putStrLn "Enter price:"
-          price <- readLn :: IO Double
-          putStrLn "Enter description:"
-          description <- getLine
-          result <- try $ requestRoomService conn reservationId price MEAL description :: IO (Either SomeException ())
-          case result of
-            Left _ -> putStrLn "Failed to request meal service."
-            Right _ -> putStrLn "Meal service requested successfully!"
-          hospedeLoop args
+          maybeReservation <- getReservation conn reservationId
+          case maybeReservation of
+            Just reservation ->
+              if _serviceStatus reservation == "FREE"
+                then do
+                  putStrLn "Enter price:"
+                  price <- readLn :: IO Double
+                  putStrLn "Enter description:"
+                  description <- getLine
+                  result <- try $ requestRoomService conn reservationId price MEAL description :: IO (Either SomeException ())
+                  case result of
+                    Left _ -> putStrLn "Failed to request meal service."
+                    Right _ -> putStrLn "Meal service requested successfully!"
+                  hospedeLoop args
+                else putStrLn "Service status must be FREE to create a service."
+            Nothing -> putStrLn "Reservation not found."
         else putStrLn "Reservation ID does not exist."
-
     "3"-> putStrLn "Goodbye!"
 
     _ -> do

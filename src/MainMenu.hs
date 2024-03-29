@@ -5,7 +5,7 @@ where
 
 import Data.Time.Format
 import Database (startDb)
-import Models.Reservation (Reservation (..), createReservation, getReservation)
+import Models.Reservation (Reservation (..), createReservation, getReservation, getAllReservations)
 import Models.Room (Room (..), createRoom, getRoom)
 import Models.Service (Service (..), ServiceType (..), createService, getAllServices, getService)
 import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
@@ -24,7 +24,8 @@ loop args = do
   putStrLn "3.  test - create room and reservation"
   putStrLn "4.  test - create service"
   putStrLn "5.  test - get all services"
-  putStrLn "6.  exit - Quit the program"
+  putStrLn "6.  get all reservations"
+  putStrLn "7.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
@@ -64,7 +65,8 @@ loop args = do
             _start = start,
             _end = end,
             _blockServices = False,
-            _rating = Nothing
+            _rating = Nothing,
+            _serviceStatus = "FREE"
           }
       reservation <- getReservation conn 1
       print reservation
@@ -78,7 +80,13 @@ loop args = do
       allServices <- getAllServices conn
       putStrLn $ unlines (map show allServices)
       loop args
-    "6" -> die "Goodbye!"
+    "6" -> do
+      conn <- startDb
+      putStrLn "Listing all reservations:"
+      allReservation <- getAllReservations conn
+      putStrLn $ unlines (map show allReservation)
+      loop args
+    "7" -> die "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
       loop args
