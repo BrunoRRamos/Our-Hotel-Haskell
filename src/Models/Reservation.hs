@@ -1,18 +1,19 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use fewer imports" #-}
 
 module Models.Reservation (module Models.Reservation) where
 
 import Data.Maybe (fromMaybe)
-import Models.Room (toggleRoomAvailiable, toggleRoomReserved, getRoom )
 import Data.Int (Int64)
 import Data.List (find)
 import Data.Time.Calendar
 import Data.Time.Format.ISO8601 (iso8601Show)
 import Database.SQLite.Simple
 import GHC.Generics
-import Models.Room (Room, getAllRooms)
+import Models.Room (Room, getAllRooms, toggleRoomAvailiable, toggleRoomReserved)
 import qualified Models.Room as Models
 
 data Reservation = Reservation
