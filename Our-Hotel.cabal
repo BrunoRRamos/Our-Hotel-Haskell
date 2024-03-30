@@ -33,8 +33,12 @@ library
       Models.Service
       Models.User
       Rooms
+      Util.Hospede
+      Util.HospedeLoop
+      Util.IO
       Util.Login
       Util.LoginLoop
+      Util.ReservationLoop
   other-modules:
       Paths_Our_Hotel
   autogen-modules:
