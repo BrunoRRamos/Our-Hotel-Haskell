@@ -1,32 +1,18 @@
-module Util.LoginLoop
-    ( loginLoop
-    ) where
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 
-import Util.Login (login)
-import Database (startDb)
-import Models.User (Role (..), User (..), createUser, getAllUsers, verifyEmailIsDisp)
+module Util.LoginLoop (loginLoop) where
+
+import Database.SQLite.Simple
+import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
 import System.Exit (die)
-import Control.Exception
+import Util.Login (login)
 
-userRedirect :: IO ()
-userRedirect = do
-    print "Login Sucesfull"
-    {-Redirecina para pagian de Hospede ou Gerente-}
+loginError conn = do
+  print "E-mail or Password Invalid, Try agin"
+  loginLoop conn
 
-loginError :: [String] -> IO ()
-loginError args = do
-    print "E-mail or Password Invalid, Try agin"
-    loginLoop args
-
-invalidEmailError :: [String] -> IO ()
-invalidEmailError args = do
-  print "Invalid E-mail !"
-  loginLoop args
-  
-
-loginLoop :: [String] -> IO ()
-loginLoop args = do
-  conn <- startDb
+loginLoop :: Connection -> IO (Maybe User)
+loginLoop conn = do
   users <- getAllUsers conn
   putStrLn "\nAvailable commands:"
   putStrLn "1.  Login"
@@ -37,23 +23,15 @@ loginLoop args = do
   let nextArgs = words cmd
   case head nextArgs of
     "1" -> do
-      result <- try $ createUser conn User
-        { _firstName = "adm",
-          _lastName = "adm",
-          _email = "baseADM@gmail.com",
-          _password = "adm",
-          _isActive = True,
-          _role = ADMIN
-        } :: IO (Either SomeException ())
-      case result of
-        Left _ -> putStr ""
-        Right _ -> putStr ""
-
       putStrLn "\nInsert your Email: "
       email <- getLine
       putStrLn "\nInsert your Password: "
       password <- getLine
-      if login email password users then userRedirect else loginError args
+      if login email password users
+        then do
+          print "Login Successful"
+          getUser conn email
+        else loginError conn
     "2" -> do
       putStrLn "\nInsert your First Name: "
       firstName <- getLine
@@ -67,9 +45,9 @@ loginLoop args = do
       putStrLn "\nInsert your Password: "
       password <- getLine
 
-      if verifyEmailIsDisp users email 
-        then 
-          createUser conn User
+      createUser
+        conn
+        User
           { _firstName = firstName,
             _lastName = lastName,
             _email = email,
@@ -77,11 +55,9 @@ loginLoop args = do
             _isActive = True,
             _role = CLIENT
           }
-        else
-          invalidEmailError args
-
+      getUser conn email
     "3" -> do
       die "Goodbye!"
     _ -> do
-        putStrLn "Invalid command. Please try again."
-        loginLoop args
+      putStrLn "Invalid command. Please try again."
+      loginLoop conn

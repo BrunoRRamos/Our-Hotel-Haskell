@@ -51,13 +51,13 @@ createRoom conn room = do
     "INSERT INTO room (id, daily_rate, status, occupancy) VALUES (?, ?, ?, ?)"
     (_id room, _dailyRate room, _status room, _occupancy room)
 
-getRoom :: Connection -> Int -> IO Room
+getAllRooms :: Connection -> IO [Room]
+getAllRooms conn = query_ conn "SELECT * FROM room" :: IO [Room]
+
+getRoom :: Connection -> Int -> IO (Maybe Room)
 getRoom conn roomId = do
-  rooms <- query_ conn "SELECT * FROM room" :: IO [Room]
-  let _room = find (\room -> _id room == roomId) rooms
-  case _room of
-    Just room -> return room
-    Nothing -> error "Room not found"
+  rooms <- getAllRooms conn
+  return $ find (\room -> _id room == roomId) rooms
 
 toggleRoomReserved :: Connection -> Int -> IO ()
 toggleRoomReserved conn roomId = do
