@@ -103,3 +103,19 @@ updateReservation conn reservationId reservation = do
       _blockServices reservation,
       reservationId
     )
+
+    
+
+checkIn :: Connection -> Int -> IO ()
+checkIn conn reservationId = do
+  roomId <- getRoomId conn reservationId
+  toggleRoomReserved conn roomId
+  putStr "CheckIn done, Welcome !"
+
+checkOut :: Connection -> Int -> IO ()
+checkOut conn reservationId = do
+  roomId <- getRoomId conn reservationId
+  toggleRoomAvailiable conn roomId
+  -- Por função de avaliação
+  -- Por função que salva dados da estadia
+  putStr "CheckOut done, GoodBye !"
