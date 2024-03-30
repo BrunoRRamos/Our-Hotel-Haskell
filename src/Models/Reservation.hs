@@ -4,6 +4,7 @@
 
 module Models.Reservation (module Models.Reservation) where
 
+import Data.Maybe (fromMaybe)
 import Models.Room (toggleRoomAvailiable, toggleRoomReserved, getRoom )
 import Data.Int (Int64)
 import Data.List (find)
@@ -104,7 +105,11 @@ updateReservation conn reservationId reservation = do
       reservationId
     )
 
-    
+getRoomId :: Connection -> Int -> IO Int
+getRoomId conn reservationId = do
+  maybeReservation <- getReservation conn reservationId
+  let reservation = fromMaybe (error "Reservation not found") maybeReservation
+  return (_roomId reservation)
 
 checkIn :: Connection -> Int -> IO ()
 checkIn conn reservationId = do
