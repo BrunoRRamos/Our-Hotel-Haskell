@@ -23,8 +23,6 @@ dependencies:
   - base >= 4.7 && < 5
   - sqlite-simple
   - time
-  - mtl
-  - errors
 
 ghc-options:
   - -Wall
