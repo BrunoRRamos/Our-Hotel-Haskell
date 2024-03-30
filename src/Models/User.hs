@@ -32,6 +32,7 @@ data User = User
     _password :: String,
     _isActive :: Bool,
     _role :: Role
+    _blockReason :: Maybe String
   }
   deriving (Show, Generic)
 
@@ -47,14 +48,15 @@ createUserTable conn =
     \last_name TEXT NOT NULL,\
     \password TEXT NOT NULL,\
     \is_active BOOLEAN NOT NULL DEFAULT 1,\
-    \role TEXT CHECK(role IN ('ADMIN', 'CLIENT')) NOT NULL)"
+    \role TEXT CHECK(role IN ('ADMIN', 'CLIENT')) NOT NULL,\
+    \block_reason TEXT)"
 
 createUser :: Connection -> User -> IO ()
 createUser conn user =
   execute
     conn
-    "INSERT INTO user (email, first_name, last_name, password, is_active, role) VALUES (?, ?, ?, ?, ?, ?)"
-    (_email user, _firstName user, _lastName user, _password user, _isActive user, show $ _role user)
+    "INSERT INTO user (email, first_name, last_name, password, is_active, role, block_reason) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    (_email user, _firstName user, _lastName user, _password user, _isActive user, show $ _role user, _blockReason user)
 
 getUser :: Connection -> String -> IO (Maybe User)
 getUser conn email = do
