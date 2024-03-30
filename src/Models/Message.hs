@@ -4,15 +4,17 @@
 
 module Models.Message (module Models.Message) where
 
-import Data.List (find)
 import Database.SQLite.Simple
 import GHC.Generics
+import Data.Time.Calendar
+import Data.Time.Format.ISO8601 (iso8601Show)
 
 data Message =  Message
     { _id :: Int,
       _senderId :: Int,
       _recipientId :: Int,
-      _message :: String
+      _message :: String,
+      _sentDate :: Day
     }
     deriving (Show, Generic)
 
@@ -27,17 +29,19 @@ createMessageTable conn =
      \sender_id INTEGER NOT NULL,\
      \recipient_id INTEGER NOT NULL,\
      \message TEXT NOT NULL,\
+     \sentDate TEXT NOT NULL,\
      \FOREIGN KEY (sender_id) REFERENCES user(id),\
      \FOREIGN KEY (recipient_id) REFERENCES user(id))"
 
-createMessage :: Connection -> Int -> Int -> String -> IO ()
-createMessage conn _senderId _recipientId _message = do
+createMessage :: Connection -> Message -> IO ()
+createMessage conn message = do
     execute
      conn
      "INSERT INTO message (sender_id, recipient_id, message) VALUES (?, ?, ?)"
-     ( _senderId,
-       _recipientId,
-       _message
+     ( _senderId message,
+       _recipientId message,
+       _message message,
+       iso8601Show $ _sentDate message
      )
 
 getAllMessages :: Connection -> IO [Message]
