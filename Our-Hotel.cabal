@@ -34,6 +34,8 @@ library
       Models.User
       Rooms
       Util.CheckInOutLoop
+      Util.Hospede
+      Util.HospedeLoop
       Util.Login
       Util.LoginLoop
   other-modules:
