@@ -43,6 +43,7 @@ library
       Util.Database
       Util.IO
       Util.Login
+      Util.Reservation
       Util.RoomAdmin
       Util.RoomService
   other-modules:
