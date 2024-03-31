@@ -31,7 +31,8 @@ data User = User
     _lastName :: String,
     _password :: String,
     _isActive :: Bool,
-    _role :: Role
+    _role :: Role,
+    _block_reason :: Maybe String
   }
   deriving (Show, Generic)
 
@@ -47,13 +48,14 @@ createUserTable conn =
     \last_name TEXT NOT NULL,\
     \password TEXT NOT NULL,\
     \is_active BOOLEAN NOT NULL DEFAULT 1,\
+    \block_reason TEXT,\
     \role TEXT CHECK(role IN ('ADMIN', 'CLIENT')) NOT NULL)"
 
 createUser :: Connection -> User -> IO ()
 createUser conn user =
   execute
     conn
-    "INSERT INTO user (email, first_name, last_name, password, is_active, role) VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO user (email, first_name, last_name, password, is_active, role, block_reason) VALUES (?, ?, ?, ?, ?, ?)"
     (_email user, _firstName user, _lastName user, _password user, _isActive user, show $ _role user)
 
 getUser :: Connection -> String -> IO (Maybe User)
@@ -63,6 +65,10 @@ getUser conn email = do
 
 getAllUsers :: Connection -> IO [User]
 getAllUsers conn = query_ conn "SELECT * FROM user" :: IO [User]
+
+blockClient :: Connection -> String -> String -> IO ()
+blockClient conn clientId reason = do
+  execute conn "UPDATE user SET is_active = ?, block_reason = ? WHERE email =?" (0 :: Int, Just reason, clientId)
 
 verifyEmailIsDisp :: [User] -> String -> Bool
 verifyEmailIsDisp [] email = True
