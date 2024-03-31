@@ -26,9 +26,9 @@ source-repository head
 library
   exposed-modules:
       Database
-      Lib
       MainMenu
       Models.Reservation
+      Models.Review
       Models.Room
       Models.Service
       Models.User
@@ -39,6 +39,7 @@ library
       Util.Login
       Util.LoginLoop
       Util.ReservationLoop
+      Util.StayReview
   other-modules:
       Paths_Our_Hotel
   autogen-modules:

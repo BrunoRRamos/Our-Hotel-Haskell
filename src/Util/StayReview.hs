@@ -1,4 +1,4 @@
-module StayReview
+module Util.StayReview
     ( generateStayReview
     ) where
 
@@ -6,6 +6,7 @@ import Data.Time.Clock
 import Database.SQLite.Simple
 import Models.User (User(..))
 import Models.Reservation (Reservation(..))
+import Models.Review (insertReview)
 
 data StayReview = StayReview
     {   _reservationId :: Int,
@@ -16,14 +17,20 @@ data StayReview = StayReview
     }
     deriving (Show)
 
-generateStayReview :: Connection -> Reservation -> User -> IO StayReview
-generateStayReview reservation user = do
+generateStayReview :: Connection -> Reservation -> User -> IO ()
+generateStayReview conn reservation user = do
     putStrLn "Please provide your rating (from 1 to 5): "
     ratingInput <- getLine
     let rating = read ratingInput :: Int
     putStrLn "Please provide your comments: "
     comments <- getLine
     currentTime <- getCurrentTime
-    execute conn "INSERT INTO reviews (reservation_id, rating, comments, date, user_id) VALUES (?, ?, ?, ?, ?)"
-        (_id reservation, rating, comments, show currentTime, _email user)
+    insertReview conn $ Review
+        {   reviewId = 0,
+            reservation_id = _id reservation,
+            rating = rating,
+            comments = comments,
+            date = currentTime,
+            userId = _email user
+        }
     putStrLn "Review added successfully!"
