@@ -1,14 +1,13 @@
-module Rooms
-  ( roomsLoop,
+module ClientMenus.RoomsMenu
+  ( roomsMenu,
   )
 where
   
-import Database.SQLite.Simple
-import Models.Service (Service (..), ServiceType (..), createService, getService, getAllServices, calculateTotalPrice)
-import Database (startDb)
+import Models.Service (getService, calculateTotalPrice)
+import Database.SQLite.Simple (Connection)
 
-roomsLoop :: [String] -> IO ()
-roomsLoop args = do
+roomsMenu :: Connection -> [String] -> IO ()
+roomsMenu conn args = do
   putStrLn "\nAvailable commands:"
   putStrLn "1.  List all rooms"
   putStrLn "2.  get_room"
@@ -20,32 +19,29 @@ roomsLoop args = do
   let nextArgs = words cmd
   case head nextArgs of
     "list_hotels" -> do
-      roomsLoop args
+      roomsMenu conn args
     "get_hotel" -> do
-      roomsLoop args
+      roomsMenu conn args
     "3" -> do
-      conn <- startDb
       putStrLn "Enter service ID:"
       serviceId <- readLn :: IO Int
       maybeService <- getService conn serviceId
       case maybeService of
         Just service -> do
-          putStrLn $ show service
-          roomsLoop args
+          print service
+          roomsMenu conn args
         Nothing -> do
           putStrLn "Service not found"
-          roomsLoop args
+          roomsMenu conn args
     "4" -> do
-      conn <- startDb
       putStrLn "Enter reservation ID:"
       reservationId <- readLn :: IO Int
       totalPrice <- calculateTotalPrice conn reservationId
       case totalPrice of
         Just price -> putStrLn $ "Total price for reservation " ++ show reservationId ++ ": " ++ show price
         Nothing -> putStrLn "Reservation not found"
-      roomsLoop args
+      roomsMenu conn args
     "5" -> putStrLn "Goodbye!"
-
     _ -> do
       putStrLn "Invalid command. Please try again."
-      roomsLoop args
+      roomsMenu conn args

@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -Wno-missing-fields #-}
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
 
-module Util.ReservationLoop (reservationLoop) where
+module ClientMenus.ReservationMenu (reservationMenu) where
 
 import Control.Exception (try)
 import Control.Monad (void)
@@ -15,8 +15,8 @@ import Models.User
 import Text.Read (readMaybe)
 import Util.IO (OperationCancelledException, askForInput, clearScreen, parseBoolInput, parseDate, pressEnter)
 
-reservationLoop :: Connection -> User -> IO ()
-reservationLoop conn user = do
+reservationMenu :: Connection -> User -> IO ()
+reservationMenu conn user = do
   clearScreen
   putStrLn
     "1. Make a reservation\n\
@@ -35,7 +35,7 @@ reservationLoop conn user = do
           Nothing -> putStrLn "Failed to make a reservation."
 
       pressEnter
-      reservationLoop conn user
+      reservationMenu conn user
     "2" -> do
       result <- try (editReservation conn user) :: IO (Either OperationCancelledException (Maybe Reservation))
       case result of
@@ -44,18 +44,18 @@ reservationLoop conn user = do
           Just _ -> putStrLn "Reservation updated successfully!"
           Nothing -> putStrLn "Failed to update the reservation."
       pressEnter
-      reservationLoop conn user
+      reservationMenu conn user
     "3" -> do
       result <- try (cancelReservation conn user) :: IO (Either OperationCancelledException Bool)
       case result of
         Left _ -> void (putStrLn "Operation cancelled!")
         Right res -> if res then putStrLn "Reservation canceled successfully!" else putStrLn "Reservation not canceled!"
       pressEnter
-      reservationLoop conn user
+      reservationMenu conn user
     "4" -> return ()
     _ -> do
       print "Invalid command. Please try again"
-      reservationLoop conn user
+      reservationMenu conn user
 
 makeReservation :: Connection -> User -> IO (Maybe Reservation)
 makeReservation conn user = do

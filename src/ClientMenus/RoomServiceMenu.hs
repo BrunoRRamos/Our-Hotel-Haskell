@@ -1,23 +1,22 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
-module Util.HospedeLoop
-    ( hospedeLoop
+module ClientMenus.RoomServiceMenu
+    (roomServiceMenu 
     ) where
 
-import Util.Hospede (requestRoomService)
-import Database (startDb)
+import Util.RoomService (requestRoomService)
 import Models.Service (ServiceType (CLEANING, MEAL))
-import Models.Reservation (createReservation, Reservation(..))
-import System.Exit (die)
+import Models.Reservation (Reservation(..))
 import Data.Time.Format (defaultTimeLocale, parseTimeOrError)
 import Control.Exception (try, SomeException)
+import Database.SQLite.Simple (Connection)
 
 instance Eq Reservation where
   (==) res1 res2 = _id res1 == _id res2
 
-hospedeLoop :: [String] -> IO ()
-hospedeLoop args = do
-  conn <- startDb
+roomServiceMenu :: Connection -> [String] -> IO ()
+roomServiceMenu conn args = do
   let start = parseTimeOrError True defaultTimeLocale "%F" "2021-12-01"
   let end = parseTimeOrError True defaultTimeLocale "%F" "2021-12-05"
   let res = Reservation
@@ -51,7 +50,7 @@ hospedeLoop args = do
           case result of
             Left _ -> putStrLn "Failed to request room cleaning."
             Right _ -> putStrLn "Cleaning service requested successfully!"
-          hospedeLoop args
+          roomServiceMenu conn args
         else putStrLn "Reservation ID does not exist."
 
     "2" -> do
@@ -68,11 +67,11 @@ hospedeLoop args = do
           case result of
             Left _ -> putStrLn "Failed to request meal service."
             Right _ -> putStrLn "Meal service requested successfully!"
-          hospedeLoop args
+          roomServiceMenu conn args
         else putStrLn "Reservation ID does not exist."
 
     "3"-> putStrLn "Goodbye!"
 
     _ -> do
       putStrLn "Invalid command. Please try again."
-      hospedeLoop args
+      roomServiceMenu conn args

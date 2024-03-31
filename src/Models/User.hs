@@ -31,8 +31,8 @@ data User = User
     _lastName :: String,
     _password :: String,
     _isActive :: Bool,
-    _role :: Role,
-    _block_reason :: Maybe String
+    _block_reason :: Maybe String,
+    _role :: Role
   }
   deriving (Show, Generic)
 
@@ -55,7 +55,7 @@ createUser :: Connection -> User -> IO ()
 createUser conn user =
   execute
     conn
-    "INSERT INTO user (email, first_name, last_name, password, is_active, role, block_reason) VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO user (email, first_name, last_name, password, is_active, role) VALUES (?, ?, ?, ?, ?, ?)"
     (_email user, _firstName user, _lastName user, _password user, _isActive user, show $ _role user)
 
 getUser :: Connection -> String -> IO (Maybe User)
