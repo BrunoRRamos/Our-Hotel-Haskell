@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      AdminMenu
       Database
       MainMenu
       Models.Message
@@ -40,6 +41,7 @@ library
       Util.Login
       Util.LoginLoop
       Util.ReservationLoop
+      Util.RoomAdmin
   other-modules:
       Paths_Our_Hotel
   autogen-modules:
