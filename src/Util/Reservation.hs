@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-missing-fields #-}
 
-module Util.Reservation where
+module Util.Reservation (cancelReservation, makeReservation, editReservation, getReservationById) where
 
 import Data.List (find)
 import Data.Time
@@ -9,8 +9,7 @@ import Models.Reservation
 import Models.Room
 import Models.User
 import Text.Read (readMaybe)
-import Util.IO ( askForInput, clearScreen, parseBoolInput, parseDate )
-
+import Util.IO (askForInput, clearScreen, parseBoolInput, parseDate)
 
 makeReservation :: Connection -> User -> IO (Maybe Reservation)
 makeReservation conn user = do

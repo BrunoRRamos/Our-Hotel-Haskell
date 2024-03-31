@@ -1,7 +1,9 @@
 module AdminMenu (adminMenu) where
 import Database.SQLite.Simple (Connection)
-import Models.User (User, blockClient)
+import Models.User (User)
 import AdminMenus.RoomMenu (roomMenu)
+import AdminMenus.UsersMenu (usersMenu)
+import AdminMenus.ReviewHotelMenu (hotelReviewMenu)
 
 adminMenu :: Connection -> User -> [String] -> IO ()
 adminMenu conn user args = do
@@ -9,15 +11,14 @@ adminMenu conn user args = do
   putStrLn "1.  Users"
   putStrLn "2.  Rooms"
   putStrLn "3.  Services"
-  putStrLn "4.  Reservations"
-  putStrLn "5.  Block Client"
-  putStrLn "6.  exit - Quit the program"
+  putStrLn "4.  Hotel Review"
+  putStrLn "5.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
   case head nextArgs of
     "1" -> do
-      putStrLn "Users" 
+      usersMenu conn
       loop args
     "2" -> do
       putStrLn "Rooms"
@@ -27,16 +28,10 @@ adminMenu conn user args = do
       putStrLn "Services"
       loop args
     "4" -> do
-      putStrLn "Reservations"
-      loop args
+      putStrLn "Hotel Review"
+      hotelReviewMenu conn
+      loop args 
     "5" -> do
-      putStrLn "Enter the ID of the client you want to block: "
-      clientId <- getLine
-      putStrLn "Enter the reason for blocking the client: "
-      reason <- getLine
-      blockClient conn clientId reason
-      loop args
-    "6" -> do
       putStrLn "exit"
     _ -> do
       putStrLn "Invalid command"
