@@ -9,7 +9,7 @@ import Control.Monad (void)
 import Database.SQLite.Simple
 import Models.Reservation
 import Models.User
-import Util.Reservation (makeReservation, editReservation, cancelReservation)
+import Util.Reservation (makeReservation, editReservation, cancelReservation) 
 import Util.IO (OperationCancelledException, pressEnter, clearScreen)
 
 reservationMenu :: Connection -> User -> IO ()

@@ -1,7 +1,8 @@
 module AdminMenus.UsersMenu (usersMenu) where
 
 import Database.SQLite.Simple (Connection)
-import Models.User (blockClient)
+import Models.User (blockClient, getAllUsers)
+import Util.UserAdmin (createUserAdmin, deleteUserAdmin)
 
 usersMenu :: Connection -> IO ()
 usersMenu conn  = do
@@ -17,12 +18,15 @@ usersMenu conn  = do
   case head nextArgs of
     "1" -> do
       putStrLn "List Users"
+      getAllUsers conn >>= print 
       loop 
     "2" -> do
       putStrLn "Add Admin User"
+      createUserAdmin conn 
       loop
     "3" -> do
       putStrLn "Delete User"
+      deleteUserAdmin conn
       loop
     "4" -> do
       putStrLn "Update User"

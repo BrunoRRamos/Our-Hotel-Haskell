@@ -3,6 +3,7 @@ import Database.SQLite.Simple (Connection)
 import Models.User (User)
 import AdminMenus.RoomMenu (roomMenu)
 import AdminMenus.UsersMenu (usersMenu)
+import AdminMenus.ReviewHotelMenu (hotelReviewMenu)
 
 adminMenu :: Connection -> User -> [String] -> IO ()
 adminMenu conn user args = do
@@ -28,6 +29,7 @@ adminMenu conn user args = do
       loop args
     "4" -> do
       putStrLn "Hotel Review"
+      hotelReviewMenu conn
       loop args 
     "5" -> do
       putStrLn "exit"

@@ -73,3 +73,8 @@ blockClient conn clientId reason = do
 verifyEmailIsDisp :: [User] -> String -> Bool
 verifyEmailIsDisp [] email = True
 verifyEmailIsDisp (h : t) email = not (_email h == email) && verifyEmailIsDisp t email
+
+deleteUser :: Connection -> String -> IO ()
+deleteUser conn email = do
+  execute conn "DELETE FROM user WHERE email = ?" (Only email)
+  return ()
