@@ -12,7 +12,7 @@ createUserAdmin conn = do
     email <- askForInput "Insert your Email: " validateEmail
     password <- askForInput "Insert your Password: " returnString
 
-    createUser conn User { _firstName = firstName, _lastName = lastName, _email = email, _password = password, _role = ADMIN}
+    createUser conn User { _firstName = firstName, _lastName = lastName, _email = email, _password = password, _isActive = True, _role = ADMIN}
     
     putStrLn "Admin user created successfully!"
     
