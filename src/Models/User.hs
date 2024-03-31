@@ -68,7 +68,7 @@ getAllUsers conn = query_ conn "SELECT * FROM user" :: IO [User]
 
 blockClient :: Connection -> String -> String -> IO ()
 blockClient conn clientId reason = do
-  execute conn "UPDATE user SET is_active = ?, block_reason = ? WHERE email =?" (0 :: Int, Just reason, clientId)
+  execute conn "UPDATE user SET is_active = ?, block_reason = ? WHERE email=?" (0 :: Int, Just reason, clientId)
 
 verifyEmailIsDisp :: [User] -> String -> Bool
 verifyEmailIsDisp [] email = True

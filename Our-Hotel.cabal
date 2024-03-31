@@ -27,11 +27,11 @@ library
   exposed-modules:
       AdminMenu
       AdminMenus.RoomMenu
+      AdminMenus.UsersMenu
       ClientMenu
       ClientMenus.CheckInOutMenu
       ClientMenus.ReservationMenu
       ClientMenus.RoomServiceMenu
-      ClientMenus.RoomsMenu
       LoginMenu
       MainMenu
       Models.Message
