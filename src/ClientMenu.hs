@@ -21,13 +21,13 @@ clientMenu conn user args = do
     "1" -> do
       _ <- reservationMenu conn user
       loop
+      loop
     "2" -> do
       roomServiceMenu conn user
       loop
-    "3" -> do
-      checkInOutMenu conn args
-      loop
-    "4" -> die "Goodbye!"
+    "3" ->
+      die
+        "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
       loop

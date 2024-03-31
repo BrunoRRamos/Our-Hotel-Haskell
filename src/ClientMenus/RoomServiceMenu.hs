@@ -17,7 +17,7 @@ roomServiceMenu conn user = do
   putStrLn "\nAvailable commands:"
   putStrLn "1. Request room cleaning"
   putStrLn "2. Request meal service"
-  putStrLn "3. Exit - Quit the program"
+  putStrLn "3. Go back to main menu"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   case cmd of
