@@ -6,7 +6,7 @@ import Data.Time.Clock
 import Database.SQLite.Simple
 import Models.User (User(..))
 import Models.Reservation (Reservation(..))
-import Models.Review (insertReview)
+import Models.Review (Review(..), insertReview)
 
 data StayReview = StayReview
     {   _reservationId :: Int,
@@ -27,7 +27,7 @@ generateStayReview conn reservation user = do
     currentTime <- getCurrentTime
     insertReview conn $ Review
         {   reviewId = 0,
-            reservation_id = _id reservation,
+            reservationId = _id reservation,
             rating = rating,
             comments = comments,
             date = currentTime,

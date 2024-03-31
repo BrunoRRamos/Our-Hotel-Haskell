@@ -5,12 +5,8 @@
 module Models.Review (module Models.Review) where
 
 import Data.Time.Clock
-import Data.List (find)
 import Database.SQLite.Simple
-import Database.SQLite.Simple.FromRow
 import GHC.Generics
-import Models.Reservation (Reservation)
-import qualified Models.Reservation as Reservation
 
 data Review = Review
     {   reviewId :: Int,
@@ -20,6 +16,8 @@ data Review = Review
         date :: UTCTime,
         userId :: String
     } deriving (Show, Generic)
+
+instance FromRow Review
 
 createReviewTable :: Connection -> IO ()
 createReviewTable conn =
