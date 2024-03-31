@@ -33,6 +33,7 @@ library
       Models.Service
       Models.User
       Rooms
+      Util.BanClient
       Util.CheckInOutLoop
       Util.Hospede
       Util.HospedeLoop

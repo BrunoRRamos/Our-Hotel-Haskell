@@ -5,6 +5,7 @@ module MainMenu
   )
 where
 
+import BanClient (blockClient)
 import Database (startDb)
 import Models.Service (getAllServices)
 import Models.User (getAllUsers, getUser)
@@ -31,7 +32,8 @@ loop args = do
   putStrLn "3.  test - create client"
   putStrLn "4.  test - create service"
   putStrLn "5.  test - get all services"
-  putStrLn "6.  exit - Quit the program"
+  putStrLn "6.  Block client"
+  putStrLn "7.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
@@ -58,7 +60,14 @@ loop args = do
       allServices <- getAllServices conn
       putStrLn $ unlines (map show allServices)
       loop args
-    "6" -> die "Goodbye!"
+    "6" -> do
+      putStrLn "Enter the ID of the client you want to block: "
+      clientId <- getLine
+      putStrLn "Enter the reason for blocking the client: "
+      reason <- getLine
+      blockClient conn clientId reason
+      loop args
+    "7" -> die "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
       loop args
