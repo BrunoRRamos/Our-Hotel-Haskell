@@ -45,11 +45,11 @@ library
       Util.Database
       Util.IO
       Util.Login
-      Util.StayReview
       Util.Reservation
       Util.ReviewHotel
       Util.RoomAdmin
       Util.RoomService
+      Util.StayReview
       Util.UserAdmin
   other-modules:
       Paths_Our_Hotel
