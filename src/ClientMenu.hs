@@ -4,6 +4,7 @@ import Database.SQLite.Simple (Connection)
 import Models.User (User)
 import ClientMenus.ReservationMenu (reservationMenu)
 import ClientMenus.RoomServiceMenu (roomServiceMenu)
+import ClientMenus.CheckInOutMenu (checkInOutMenu)
 import System.Exit (die)
 
 clientMenu :: Connection -> User -> [String] -> IO ()
@@ -11,7 +12,8 @@ clientMenu conn user args = do
   putStrLn "\nAvailable commands:"
   putStrLn "1.  Reservations"
   putStrLn "2.  Service"
-  putStrLn "3.  exit - Quit the program"
+  putStrLn "3.  Check-In / Check-Out"
+  putStrLn "4.  exit - Quit the program"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
@@ -22,7 +24,10 @@ clientMenu conn user args = do
     "2" -> do
       roomServiceMenu conn args
       loop
-    "3" -> die "Goodbye!"
+    "3" -> do
+      checkInOutMenu conn args
+      loop
+    "4" -> die "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
       loop
