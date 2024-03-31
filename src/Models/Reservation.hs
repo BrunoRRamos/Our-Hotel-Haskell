@@ -1,16 +1,19 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use fewer imports" #-}
 
 module Models.Reservation (module Models.Reservation) where
 
+import Data.Maybe (fromMaybe)
 import Data.Int (Int64)
 import Data.List (find)
 import Data.Time.Calendar
 import Data.Time.Format.ISO8601 (iso8601Show)
 import Database.SQLite.Simple
 import GHC.Generics
-import Models.Room (Room, getAllRooms)
+import Models.Room (Room, getAllRooms, toggleRoomAvailiable, toggleRoomReserved)
 import qualified Models.Room as Models
 
 data Reservation = Reservation
@@ -102,3 +105,23 @@ updateReservation conn reservationId reservation = do
       _blockServices reservation,
       reservationId
     )
+
+getRoomId :: Connection -> Int -> IO Int
+getRoomId conn reservationId = do
+  maybeReservation <- getReservation conn reservationId
+  let reservation = fromMaybe (error "Reservation not found") maybeReservation
+  return (_roomId reservation)
+
+checkIn :: Connection -> Int -> IO ()
+checkIn conn reservationId = do
+  roomId <- getRoomId conn reservationId
+  toggleRoomReserved conn roomId
+  putStr "CheckIn done, Welcome !"
+
+checkOut :: Connection -> Int -> IO ()
+checkOut conn reservationId = do
+  roomId <- getRoomId conn reservationId
+  toggleRoomAvailiable conn roomId
+  -- Por função de avaliação
+  -- Por função que salva dados da estadia
+  putStr "CheckOut done, GoodBye !"

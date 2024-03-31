@@ -27,11 +27,13 @@ library
   exposed-modules:
       Database
       MainMenu
+      Models.Message
       Models.Reservation
       Models.Room
       Models.Service
       Models.User
       Rooms
+      Util.CheckInOutLoop
       Util.Hospede
       Util.HospedeLoop
       Util.IO
