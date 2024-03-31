@@ -1,8 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Database (startDb) where
+module Util.Database (startDb) where
 
-import Database.SQLite.Simple
+import Database.SQLite.Simple ( Connection, open )
 import Models.Reservation (createReservationTable)
 import Models.Room (createRoomTable)
 import Models.Service (createServiceTable)

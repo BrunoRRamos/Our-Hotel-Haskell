@@ -25,21 +25,26 @@ source-repository head
 
 library
   exposed-modules:
-      Database
+      AdminMenu
+      AdminMenus.RoomMenu
+      ClientMenu
+      ClientMenus.CheckInOutMenu
+      ClientMenus.ReservationMenu
+      ClientMenus.RoomServiceMenu
+      ClientMenus.RoomsMenu
+      LoginMenu
       MainMenu
       Models.Message
       Models.Reservation
       Models.Room
       Models.Service
       Models.User
-      Rooms
-      Util.CheckInOutLoop
-      Util.Hospede
-      Util.HospedeLoop
+      Util.CheckInOut
+      Util.Database
       Util.IO
       Util.Login
-      Util.LoginLoop
-      Util.ReservationLoop
+      Util.RoomAdmin
+      Util.RoomService
   other-modules:
       Paths_Our_Hotel
   autogen-modules:

@@ -11,6 +11,7 @@ import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
+import Data.Int (Int64)
 
 data RoomStatus = AVAILABLE | RESERVED | BLOCKED deriving (Show, Eq)
 
@@ -44,12 +45,13 @@ createRoomTable conn = do
     \status TEXT CHECK(status IN ('AVAILABLE', 'RESERVED', 'BLOCKED')) NOT NULL,\
     \occupancy INTEGER NOT NULL)"
 
-createRoom :: Connection -> Room -> IO ()
+createRoom :: Connection -> Room -> IO Int64
 createRoom conn room = do
   execute
     conn
     "INSERT INTO room (id, daily_rate, status, occupancy) VALUES (?, ?, ?, ?)"
     (_id room, _dailyRate room, _status room, _occupancy room)
+  lastInsertRowId conn
 
 getAllRooms :: Connection -> IO [Room]
 getAllRooms conn = query_ conn "SELECT * FROM room" :: IO [Room]
@@ -69,3 +71,10 @@ toggleRoomAvailiable :: Connection -> Int -> IO ()
 toggleRoomAvailiable conn roomId = do
   testRoom <- getRoom conn roomId
   execute conn "UPDATE room SET status = 'AVAILABLE' WHERE id = ?" (Only roomId)
+
+updateRoom :: Connection -> Room -> IO ()
+updateRoom conn room = do
+  execute
+    conn
+    "UPDATE room SET daily_rate = ?, status = ?, occupancy = ? WHERE id = ?"
+    (_dailyRate room, _status room, _occupancy room, _id room)
