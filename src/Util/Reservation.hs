@@ -1,11 +1,7 @@
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 {-# OPTIONS_GHC -Wno-missing-fields #-}
-{-# OPTIONS_GHC -Wno-unused-do-bind #-}
 
-module Util.ReservationLoop (reservationLoop) where
+module Util.Reservation (cancelReservation, makeReservation, editReservation, getReservationById) where
 
-import Control.Exception (try)
-import Control.Monad (void)
 import Data.List (find)
 import Data.Time
 import Database.SQLite.Simple
@@ -13,49 +9,7 @@ import Models.Reservation
 import Models.Room
 import Models.User
 import Text.Read (readMaybe)
-import Util.IO (OperationCancelledException, askForInput, clearScreen, parseBoolInput, parseDate, pressEnter)
-
-reservationLoop :: Connection -> User -> IO ()
-reservationLoop conn user = do
-  clearScreen
-  putStrLn
-    "1. Make a reservation\n\
-    \2. Edit a reservation\n\
-    \3. Cancel a reservation\n\
-    \4. Go back"
-  cmd <- getLine
-
-  case cmd of
-    "1" -> do
-      result <- try (makeReservation conn user) :: IO (Either OperationCancelledException (Maybe Reservation))
-      case result of
-        Left _ -> void (putStrLn "Operation cancelled!")
-        Right maybeReservation -> case maybeReservation of
-          Just _ -> putStrLn "Reservation made successfully!"
-          Nothing -> putStrLn "Failed to make a reservation."
-
-      pressEnter
-      reservationLoop conn user
-    "2" -> do
-      result <- try (editReservation conn user) :: IO (Either OperationCancelledException (Maybe Reservation))
-      case result of
-        Left _ -> void (putStrLn "Operation cancelled!")
-        Right maybeReservation -> case maybeReservation of
-          Just _ -> putStrLn "Reservation updated successfully!"
-          Nothing -> putStrLn "Failed to update the reservation."
-      pressEnter
-      reservationLoop conn user
-    "3" -> do
-      result <- try (cancelReservation conn user) :: IO (Either OperationCancelledException Bool)
-      case result of
-        Left _ -> void (putStrLn "Operation cancelled!")
-        Right res -> if res then putStrLn "Reservation canceled successfully!" else putStrLn "Reservation not canceled!"
-      pressEnter
-      reservationLoop conn user
-    "4" -> return ()
-    _ -> do
-      print "Invalid command. Please try again"
-      reservationLoop conn user
+import Util.IO (askForInput, clearScreen, parseBoolInput, parseDate)
 
 makeReservation :: Connection -> User -> IO (Maybe Reservation)
 makeReservation conn user = do
