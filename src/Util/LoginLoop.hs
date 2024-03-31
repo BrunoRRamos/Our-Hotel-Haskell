@@ -1,14 +1,16 @@
+{-# OPTIONS_GHC -Wno-missing-fields #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 module Util.LoginLoop (loginLoop) where
 
+import Data.Maybe
 import Database.SQLite.Simple
 import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
 import System.Exit (die)
 import Util.Login (login)
 
 loginError conn = do
-  print "E-mail or Password Invalid, Try agin"
+  putStrLn "E-mail or Password Invalid, Try agin"
   loginLoop conn
 
 loginLoop :: Connection -> IO (Maybe User)
@@ -29,8 +31,16 @@ loginLoop conn = do
       password <- getLine
       if login email password users
         then do
-          print "Login Successful"
-          getUser conn email
+          user <- getUser conn email
+          case user of
+            Just u -> do
+              if _isActive u == False
+                then do
+                  putStrLn $ "\nLog in aborted, user is blocked\nReason: " ++ fromMaybe "" (_block_reason u)
+                  loginLoop conn
+                else
+                  return $ Just u
+            Nothing -> die "User not found"
         else loginError conn
     "2" -> do
       putStrLn "\nInsert your First Name: "

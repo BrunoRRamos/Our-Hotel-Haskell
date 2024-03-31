@@ -5,12 +5,9 @@ module MainMenu
   )
 where
 
-import BanClient (blockClient)
 import Database (startDb)
-import Models.Reservation (Reservation (..), createReservation, getReservation)
-import Models.Room (Room (..), createRoom, getRoom)
 import Models.Service (getAllServices)
-import Models.User (User (..), blockClient, getAllUsers, getUser)
+import Models.User (blockClient, getAllUsers, getUser)
 import Rooms (roomsLoop)
 import System.Exit (die)
 import Util.HospedeLoop (hospedeLoop)
