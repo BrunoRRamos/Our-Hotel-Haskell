@@ -1,15 +1,19 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Models.Room (module Models.Room) where
-
+  
 import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
+import Data.Int (Int64)
 
-data RoomStatus = AVAILABLE | OCCUPIED | BLOCKED deriving (Show, Eq)
+data RoomStatus = AVAILABLE | RESERVED | BLOCKED deriving (Show, Eq)
 
 instance FromField RoomStatus where
   fromField :: FieldParser RoomStatus
@@ -17,7 +21,7 @@ instance FromField RoomStatus where
     _field <- (fromField :: FieldParser String) f
     case _field of
       "AVAILABLE" -> return AVAILABLE
-      "OCCUPIED" -> return OCCUPIED
+      "RESERVED" -> return RESERVED
       "BLOCKED" -> return BLOCKED
       _ -> returnError ConversionFailed f "Unknown room status"
 
@@ -38,15 +42,16 @@ createRoomTable conn = do
     "CREATE TABLE IF NOT EXISTS room (\
     \id INTEGER PRIMARY KEY,\
     \daily_rate REAL NOT NULL,\
-    \status TEXT CHECK(status IN ('AVAILABLE', 'OCCUPIED', 'BLOCKED')) NOT NULL,\
+    \status TEXT CHECK(status IN ('AVAILABLE', 'RESERVED', 'BLOCKED')) NOT NULL,\
     \occupancy INTEGER NOT NULL)"
 
-createRoom :: Connection -> Room -> IO ()
+createRoom :: Connection -> Room -> IO Int64
 createRoom conn room = do
   execute
     conn
     "INSERT INTO room (id, daily_rate, status, occupancy) VALUES (?, ?, ?, ?)"
     (_id room, _dailyRate room, _status room, _occupancy room)
+  lastInsertRowId conn
 
 getAllRooms :: Connection -> IO [Room]
 getAllRooms conn = query_ conn "SELECT * FROM room" :: IO [Room]
@@ -55,3 +60,21 @@ getRoom :: Connection -> Int -> IO (Maybe Room)
 getRoom conn roomId = do
   rooms <- getAllRooms conn
   return $ find (\room -> _id room == roomId) rooms
+
+toggleRoomReserved :: Connection -> Int -> IO ()
+toggleRoomReserved conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = 'RESERVED' WHERE id = ?" (Only roomId)
+
+
+toggleRoomAvailiable :: Connection -> Int -> IO ()
+toggleRoomAvailiable conn roomId = do
+  testRoom <- getRoom conn roomId
+  execute conn "UPDATE room SET status = 'AVAILABLE' WHERE id = ?" (Only roomId)
+
+updateRoom :: Connection -> Room -> IO ()
+updateRoom conn room = do
+  execute
+    conn
+    "UPDATE room SET daily_rate = ?, status = ?, occupancy = ? WHERE id = ?"
+    (_dailyRate room, _status room, _occupancy room, _id room)

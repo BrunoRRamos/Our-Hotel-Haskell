@@ -41,3 +41,21 @@ pressEnter = do
   putStrLn "\nPress enter to go back"
   _ <- getLine
   return ()
+
+askForInputWithDefault :: String -> (String -> IO (Maybe t)) -> t -> IO t
+askForInputWithDefault prompt validate defaultValue = do
+  putStrLn $ prompt ++ " (optional) (enter c to cancel)"
+  _input <- getLine
+  case _input of
+    "c" -> error "Operation cancelled"
+    _ -> return ()
+  if _input == ""
+    then return defaultValue
+    else do
+        value <- validate _input
+        case value of
+          Just v -> do
+            return v
+          Nothing -> do
+            askForInputWithDefault prompt validate defaultValue
+  

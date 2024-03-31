@@ -8,7 +8,6 @@ import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
-import Data.Maybe (listToMaybe)
 
 data ServiceType = CLEANING | MEAL deriving (Show)
 

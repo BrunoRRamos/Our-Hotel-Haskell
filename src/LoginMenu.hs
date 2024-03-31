@@ -1,6 +1,10 @@
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
+{-# OPTIONS_GHC -Wno-missing-fields #-}
 
-module Util.LoginLoop (loginLoop) where
+module LoginMenu
+  ( loginMenu,
+  )
+where
 
 import Database.SQLite.Simple
 import Models.User (Role (..), User (..), createUser, getAllUsers, getUser)
@@ -9,10 +13,10 @@ import Util.Login (login)
 
 loginError conn = do
   print "E-mail or Password Invalid, Try agin"
-  loginLoop conn
+  loginMenu conn
 
-loginLoop :: Connection -> IO (Maybe User)
-loginLoop conn = do
+loginMenu :: Connection -> IO (Maybe User)
+loginMenu conn = do
   users <- getAllUsers conn
   putStrLn "\nAvailable commands:"
   putStrLn "1.  Login"
@@ -60,4 +64,4 @@ loginLoop conn = do
       die "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
-      loginLoop conn
+      loginMenu conn

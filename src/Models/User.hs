@@ -1,6 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use foldr" #-}
+{-# HLINT ignore "Use /=" #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Models.User (module Models.User) where
 
@@ -27,6 +31,7 @@ data User = User
     _lastName :: String,
     _password :: String,
     _isActive :: Bool,
+    _block_reason :: Maybe String,
     _role :: Role
   }
   deriving (Show, Generic)
@@ -43,6 +48,7 @@ createUserTable conn =
     \last_name TEXT NOT NULL,\
     \password TEXT NOT NULL,\
     \is_active BOOLEAN NOT NULL DEFAULT 1,\
+    \block_reason TEXT,\
     \role TEXT CHECK(role IN ('ADMIN', 'CLIENT')) NOT NULL)"
 
 createUser :: Connection -> User -> IO ()
@@ -59,3 +65,16 @@ getUser conn email = do
 
 getAllUsers :: Connection -> IO [User]
 getAllUsers conn = query_ conn "SELECT * FROM user" :: IO [User]
+
+blockClient :: Connection -> String -> String -> IO ()
+blockClient conn clientId reason = do
+  execute conn "UPDATE user SET is_active = ?, block_reason = ? WHERE email=?" (0 :: Int, Just reason, clientId)
+
+verifyEmailIsDisp :: [User] -> String -> Bool
+verifyEmailIsDisp [] email = True
+verifyEmailIsDisp (h : t) email = not (_email h == email) && verifyEmailIsDisp t email
+
+deleteUser :: Connection -> String -> IO ()
+deleteUser conn email = do
+  execute conn "DELETE FROM user WHERE email = ?" (Only email)
+  return ()
