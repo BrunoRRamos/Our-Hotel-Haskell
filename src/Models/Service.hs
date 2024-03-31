@@ -9,7 +9,7 @@ import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
 
-data ServiceType = CLEANING | MEAL deriving (Show)
+data ServiceType = CLEANING | MEAL deriving (Show, Eq)
 
 instance FromField ServiceType where
   fromField :: FieldParser ServiceType
@@ -24,10 +24,9 @@ data Service = Service
   { _id :: Int,
     _price :: Double,
     _type :: ServiceType,
-    _description :: String,
-    _reservationId :: Int
+    _description :: String
   }
-  deriving (Generic)
+  deriving (Generic, Show)
 
 instance FromRow Service
 
@@ -38,49 +37,38 @@ createServiceTable conn =
     "CREATE TABLE IF NOT EXISTS service (\
     \id INTEGER PRIMARY KEY AUTOINCREMENT,\
     \price REAL NOT NULL,\
-    \type TEXT CHECK(type IN ('CLEANING', 'MEAL')) NOT NULL,\
-    \description TEXT NOT NULL,\
-    \reservation_id INTEGER NOT NULL,\
-    \FOREIGN KEY (reservation_id) REFERENCES reservation(id))"
+    \type TEXT CHECK(type IN ('CLEANING', 'MEAL') NOT NULL),\
+    \description TEXT NOT NULL)"
 
-createService :: Connection -> Service -> IO ()
+createService :: Connection -> Service -> IO Service
 createService conn service = do
   execute
     conn
-    "INSERT INTO service (reservation_id, price, type, description) VALUES (?, ?, ?, ?)"
-    (_reservationId service, _price service, show $ _type service, _description service)
+    "INSERT INTO service (price, type, description) VALUES (?, ?, ?)"
+    (_price service, show $ _type service, _description service)
+  serviceId <- lastInsertRowId conn
+  return $ service {_id = fromIntegral serviceId}
 
+updateService :: Connection -> Int -> Service -> IO ()
+updateService conn serviceId service = do
+  execute
+    conn
+    "UPDATE service SET price = ?, type = ?, description = ? WHERE id = ?"
+    (_price service, show $ _type service, _description service, serviceId)
+
+deleteService :: Connection -> Int -> IO ()
+deleteService conn serviceId = do
+  execute conn "DELETE FROM service WHERE id = ?" (Only serviceId)
 
 getService :: Connection -> Int -> IO (Maybe Service)
 getService conn serviceId = do
   services <- query_ conn "SELECT * FROM service" :: IO [Service]
-  let maybeService = find (\service -> _id service == serviceId) services
-  return maybeService
-
+  return $ find (\service -> _id service == serviceId) services
 
 getAllServices :: Connection -> IO [Service]
 getAllServices conn = query_ conn "SELECT * FROM service" :: IO [Service]
 
-instance Show Service where
-    show service =
-        "Service ID: " ++ show (_id service) ++ "\n" ++
-        "Price: " ++ show (_price service) ++ "\n" ++
-        "Type: " ++ show (_type service) ++ "\n" ++
-        "Description: " ++ _description service ++ "\n" ++
-        "Reservation ID: " ++ show (_reservationId service) ++ "\n"
-
-
-calculateTotalPrice :: Connection -> Int -> IO (Maybe Double)
-calculateTotalPrice conn reservationId = do
-  allServices <- getAllServices conn
-  let servicesForReservation = filter (\service -> _reservationId service == reservationId) allServices
-  let totalPrice = sum $ map _price servicesForReservation
-  if null servicesForReservation
-    then return Nothing
-    else return $ Just totalPrice
-
-
-instance Eq Service where
-    (Service id1 _ _ _ _) == (Service id2 _ _ _ _) = id1 == id2
-
-    
+getServiceByType :: Connection -> ServiceType -> IO [Service]
+getServiceByType conn serviceType = do
+  services <- getAllServices conn
+  return $ filter (\service -> _type service == serviceType) services

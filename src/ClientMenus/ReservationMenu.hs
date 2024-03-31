@@ -9,8 +9,8 @@ import Control.Monad (void)
 import Database.SQLite.Simple
 import Models.Reservation
 import Models.User
-import Util.Reservation (makeReservation, editReservation, cancelReservation) 
-import Util.IO (OperationCancelledException, pressEnter, clearScreen)
+import Util.IO (OperationCancelledException, clearScreen, pressEnter)
+import Util.Reservation (cancelReservation, editReservation, makeReservation)
 
 reservationMenu :: Connection -> User -> IO ()
 reservationMenu conn user = do

@@ -80,7 +80,7 @@ reservationForm conn user = do
 
   return
     Reservation
-      { _roomId = Models.Room._id room,
+      { Models.Reservation._roomId = Models.Room._id room,
         _start = start,
         _end = end,
         _blockServices = blockServices,
