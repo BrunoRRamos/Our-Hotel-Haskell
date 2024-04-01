@@ -1,10 +1,11 @@
 module AdminMenu (adminMenu) where
+
+import AdminMenus.ReviewHotelMenu (hotelReviewMenu)
+import AdminMenus.RoomMenu (roomMenu)
+import AdminMenus.ServiceMenu (serviceMenu)
 import Database.SQLite.Simple (Connection)
 import ClientMenus.ChatMenu (chatMenu)
 import Models.User (User)
-import AdminMenus.RoomMenu (roomMenu)
-import AdminMenus.UsersMenu (usersMenu)
-import AdminMenus.ReviewHotelMenu (hotelReviewMenu)
 
 adminMenu :: Connection -> User -> [String] -> IO ()
 adminMenu conn user args = do
@@ -20,19 +21,20 @@ adminMenu conn user args = do
   let nextArgs = words cmd
   case head nextArgs of
     "1" -> do
-      usersMenu conn
+      putStrLn "Users"
       loop args
     "2" -> do
       putStrLn "Rooms"
-      roomMenu conn 
+      roomMenu conn
       loop args
     "3" -> do
       putStrLn "Services"
+      serviceMenu conn
       loop args
     "4" -> do
       putStrLn "Hotel Review"
       hotelReviewMenu conn
-      loop args 
+      loop args
     "5" -> do
       putStrLn "Hotel Review"
       chatMenu conn args

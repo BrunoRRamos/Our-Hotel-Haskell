@@ -1,5 +1,5 @@
-{-# OPTIONS_GHC -Wno-missing-signatures #-}
 {-# OPTIONS_GHC -Wno-missing-fields #-}
+{-# OPTIONS_GHC -Wno-missing-signatures #-}
 
 module LoginMenu
   ( loginMenu,
@@ -33,7 +33,7 @@ loginMenu conn = do
       password <- getLine
       if login email password users
         then do
-          print "Login Successful"
+          putStrLn "Login Successful"
           getUser conn email
         else loginError conn
     "2" -> do

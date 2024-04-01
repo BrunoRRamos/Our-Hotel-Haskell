@@ -28,6 +28,7 @@ library
       AdminMenu
       AdminMenus.ReviewHotelMenu
       AdminMenus.RoomMenu
+      AdminMenus.ServiceMenu
       AdminMenus.UsersMenu
       ClientMenu
       ClientMenus.ChatMenu
@@ -39,6 +40,7 @@ library
       Models.Message
       Models.Reservation
       Models.Room
+      Models.RoomService
       Models.Service
       Models.User
       Util.CheckInOut
@@ -49,6 +51,7 @@ library
       Util.ReviewHotel
       Util.RoomAdmin
       Util.RoomService
+      Util.Service
       Util.UserAdmin
   other-modules:
       Paths_Our_Hotel

@@ -1,11 +1,11 @@
 module ClientMenu (clientMenu) where
 
-import Database.SQLite.Simple (Connection)
-import Models.User (User)
 import ClientMenus.ReservationMenu (reservationMenu)
 import ClientMenus.RoomServiceMenu (roomServiceMenu)
 import ClientMenus.CheckInOutMenu (checkInOutMenu)
 import ClientMenus.ChatMenu (chatMenu)
+import Database.SQLite.Simple (Connection)
+import Models.User (User)
 import System.Exit (die)
 
 clientMenu :: Connection -> User -> [String] -> IO ()
