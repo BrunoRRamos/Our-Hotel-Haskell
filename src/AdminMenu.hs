@@ -7,6 +7,7 @@ import Database.SQLite.Simple (Connection)
 import ClientMenus.ChatMenu (chatMenu)
 import Models.User (User)
 import AdminMenus.UsersMenu (usersMenu)
+import System.Exit (die)
 
 adminMenu :: Connection -> User -> [String] -> IO ()
 adminMenu conn user args = do
@@ -53,7 +54,7 @@ adminMenu conn user args = do
       putStrLn "║                              Pedro Silva Filho                               ║"
       putStrLn "║                                Suelen Felix                                  ║"
       putStrLn "╚══════════════════════════════════════════════════════════════════════════════╝" 
-      putStrLn "Goodbye!"
+      die "Goodbye!"
     _ -> do
       putStrLn "Invalid command"
       loop args

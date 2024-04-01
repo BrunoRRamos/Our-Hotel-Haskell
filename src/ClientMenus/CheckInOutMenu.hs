@@ -14,7 +14,7 @@ checkInOutMenu conn args = do
     putStrLn "\nAvailable commands:"
     putStrLn "1.  Check-In"
     putStrLn "2.  Check-Out"
-    putStrLn "3.  exit - Quit the program"
+    putStrLn "3.  Go back"
     putStrLn "\nEnter a command: "
     cmd <- getLine
     let nextArgs = words cmd
@@ -24,7 +24,7 @@ checkInOutMenu conn args = do
         "2" -> do
             checkOutInput conn
         "3" -> do
-            die "Goodbye!"
+            return ()
         _ -> do
             putStrLn "Invalid command. Please try again."
             checkInOutMenu conn args
