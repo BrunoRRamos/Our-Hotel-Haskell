@@ -31,6 +31,7 @@ library
       AdminMenus.UsersMenu
       ClientMenu
       ClientMenus.CheckInOutMenu
+      ClientMenus.ClientResumeMenu
       ClientMenus.ReservationMenu
       ClientMenus.RoomServiceMenu
       LoginMenu

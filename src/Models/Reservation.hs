@@ -2,13 +2,15 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "Use fewer imports" #-}
 
 module Models.Reservation (module Models.Reservation) where
 
-import Data.Maybe (fromMaybe)
 import Data.Int (Int64)
 import Data.List (find)
+import Data.Maybe (fromMaybe)
+import Models.Service (calculateTotalPrice)
 import Data.Time.Calendar
 import Data.Time.Format.ISO8601 (iso8601Show)
 import Database.SQLite.Simple
@@ -125,3 +127,26 @@ checkOut conn reservationId = do
   -- Por função de avaliação
   -- Por função que salva dados da estadia
   putStr "CheckOut done, GoodBye !"
+
+servicesCoastResume :: Connection -> Int -> IO ()
+servicesCoastResume conn reservationId = do
+  maybeTotalPrice <- calculateTotalPrice conn reservationId
+  case maybeTotalPrice of
+    Just totalPrice -> putStrLn $ "\nServices: " ++ show totalPrice
+    Nothing -> putStrLn "\nServices: No services found for this reservation."
+
+calculateRemainingDaysReservation :: Connection -> Int -> IO ()
+calculateRemainingDaysReservation conn reservationId = do
+  maybeReservation <- getReservation conn reservationId
+  case maybeReservation of
+    Just reservation -> do
+      let startDate = _start reservation
+          endDate = _end reservation
+          remainingDays = diffDays endDate startDate
+      putStrLn $ "Remaining days: " ++ show remainingDays
+    Nothing -> putStrLn "Remaining days: Reservation not found"
+
+reservationResume :: Connection -> Int -> IO ()
+reservationResume conn reservationId = do
+  servicesCoastResume conn reservationId
+  calculateRemainingDaysReservation conn reservationId
