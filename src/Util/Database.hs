@@ -4,6 +4,7 @@ module Util.Database (startDb) where
 
 import Database.SQLite.Simple (Connection, open)
 import Models.Reservation (createReservationTable)
+import Models.Message (createMessageTable)
 import Models.Room (createRoomTable)
 import Models.RoomService (createRoomServiceTable)
 import Models.Service (createServiceTable)
@@ -27,6 +28,7 @@ startDb = do
   }
   userExists <- getUser conn (_email user)
   when (isNothing userExists) $ createUser conn user
+  createMessageTable conn
   createReservationTable conn
   createRoomTable conn
   createRoomServiceTable conn
