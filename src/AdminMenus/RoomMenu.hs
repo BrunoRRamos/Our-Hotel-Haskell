@@ -7,9 +7,8 @@ roomMenu conn = do
   putStrLn "\nAvailable commands:"
   putStrLn "1.  Add room to hotel"
   putStrLn "2.  Edit room"
-  putStrLn "3.  Delete room"
-  putStrLn "4.  List rooms"
-  putStrLn "5.  exit - back to admin menu"
+  putStrLn "3.  List rooms"
+  putStrLn "4.  exit - back to admin menu"
   putStrLn "\nEnter a command: "
   cmd <- getLine
   let nextArgs = words cmd
@@ -24,13 +23,10 @@ roomMenu conn = do
       _ <- editRoom conn
       loop
     "3" -> do
-      putStrLn "Delete room"
-      loop
-    "4" -> do
       rooms <- listAllRoomsAdmin conn
       print rooms
       loop
-    "5" -> do
+    "4" -> do
       putStrLn "exit"
     _ -> do
       putStrLn "Invalid command"
