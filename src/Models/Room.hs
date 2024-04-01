@@ -6,12 +6,12 @@
 {-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Models.Room (module Models.Room) where
-  
+
+import Data.Int (Int64)
 import Data.List (find)
 import Database.SQLite.Simple
 import Database.SQLite.Simple.FromField
 import GHC.Generics
-import Data.Int (Int64)
 
 data RoomStatus = AVAILABLE | RESERVED | BLOCKED deriving (Show, Eq)
 
@@ -65,7 +65,6 @@ toggleRoomReserved :: Connection -> Int -> IO ()
 toggleRoomReserved conn roomId = do
   testRoom <- getRoom conn roomId
   execute conn "UPDATE room SET status = 'RESERVED' WHERE id = ?" (Only roomId)
-
 
 toggleRoomAvailiable :: Connection -> Int -> IO ()
 toggleRoomAvailiable conn roomId = do

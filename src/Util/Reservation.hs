@@ -1,15 +1,21 @@
 {-# OPTIONS_GHC -Wno-missing-fields #-}
 
-module Util.Reservation (cancelReservation, makeReservation, editReservation, getReservationById) where
+module Util.Reservation (cancelReservation, makeReservation, editReservation, getReservationById, reservationOverview) where
 
-import Data.List (find)
+import Control.Exception
+import Control.Monad (forM_)
+import Data.List (find, group, sortOn)
+import Data.Maybe (fromJust)
 import Data.Time
 import Database.SQLite.Simple
 import Models.Reservation
 import Models.Room
+import Models.RoomService (RoomService (_serviceId), getRoomServicesByReservation)
+import Models.Service (Service (..), getAllServices)
 import Models.User
+import Text.Printf
 import Text.Read (readMaybe)
-import Util.IO (askForInput, clearScreen, parseBoolInput, parseDate)
+import Util.IO (OperationCancelledException (OperationCancelledException), askForInput, clearScreen, parseBoolInput, parseDate)
 
 makeReservation :: Connection -> User -> IO (Maybe Reservation)
 makeReservation conn user = do
@@ -80,7 +86,7 @@ reservationForm conn user = do
 
   return
     Reservation
-      { _roomId = Models.Room._id room,
+      { Models.Reservation._roomId = Models.Room._id room,
         _start = start,
         _end = end,
         _blockServices = blockServices,
@@ -112,3 +118,65 @@ parseAndValidateDate str = maybe (return Nothing) validateDate (parseDate str)
 printRoom :: Room -> IO ()
 printRoom room =
   putStrLn $ "Room " ++ show (Models.Room._id room) ++ " - $" ++ show (Models.Room._dailyRate room) ++ " per night"
+
+reservationOverview :: Connection -> User -> IO ()
+reservationOverview conn user = do
+  clearScreen
+  reservation <- getReservationById conn
+  if _userId reservation /= Models.User._email user
+    then putStrLn "You are not allowed to view this reservation!" >> throw OperationCancelledException
+    else putStrLn "Reservation found!\n"
+
+  room <- fromJust <$> getRoom conn (Models.Reservation._roomId reservation)
+  roomServices <- getRoomServicesByReservation conn (Models.Reservation._id reservation)
+  reservationServices <- getServicesByRoomServices roomServices
+
+  let totalDays = diffDays (_end reservation) (_start reservation)
+  let servicesTotal = sum $ map Models.Service._price reservationServices
+  let accommodationsTotal = Models.Room._dailyRate room * fromIntegral totalDays
+
+  let sortedServices = sortOn Models.Service._id reservationServices
+  let groupedServices = group sortedServices
+
+  clearScreen
+  putStrLn "########## Items ##########"
+  putStrLn
+    ( printf
+        "%-17.17s"
+        ("Room " ++ show (Models.Room._id room))
+        ++ " - "
+        ++ "$"
+        ++ show (Models.Room._dailyRate room)
+        ++ " x"
+        ++ show totalDays
+        ++ " "
+        ++ ( if totalDays == 1
+               then "night"
+               else
+                 "nights"
+           )
+    )
+  forM_ groupedServices $ \rs -> do
+    let service = head rs
+    let desc = printf "%-17.17s" (Models.Service._description service)
+    putStrLn $
+      desc
+        ++ " - $"
+        ++ show (Models.Service._price service)
+        ++ " x"
+        ++ show (length rs)
+
+  putStrLn
+    ( "\n######### Details #########\n"
+        ++ "Services ---------- $"
+        ++ show servicesTotal
+        ++ "\nAccommodations ---- $"
+        ++ show accommodationsTotal
+        ++ "\n\nTotal ------------- $"
+        ++ show (servicesTotal + accommodationsTotal)
+    )
+  where
+    getServicesByRoomServices :: [RoomService] -> IO [Service]
+    getServicesByRoomServices roomServices = do
+      services <- getAllServices conn
+      return $ map (\rs -> fromJust $ find (\service -> Models.Service._id service == _serviceId rs) services) roomServices
