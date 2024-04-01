@@ -32,7 +32,19 @@ clientMenu conn user args = do
     "4" -> do
       chatMenu conn args
       loop
-    "5" -> die "Goodbye!"
+    "5" -> do
+      putStrLn "╔══════════════════════════════════════════════════════════════════════════════╗"
+      putStrLn "║                    THANK YOU FOR VISITING, COME BACK SOON                    ║"
+      putStrLn "║══════════════════════════════════════════════════════════════════════════════║"
+      putStrLn "║                                    TEAM:                                     ║"
+      putStrLn "║══════════════════════════════════════════════════════════════════════════════║"
+      putStrLn "║                               Bruno Rodrigues                                ║"
+      putStrLn "║                              José Gabriel Melo                               ║"
+      putStrLn "║                             Pedro Henrique Costa                             ║"
+      putStrLn "║                              Pedro Silva Filho                               ║"
+      putStrLn "║                                Suelen Felix                                  ║"
+      putStrLn "╚══════════════════════════════════════════════════════════════════════════════╝" 
+      die "Goodbye!"
     _ -> do
       putStrLn "Invalid command. Please try again."
       loop

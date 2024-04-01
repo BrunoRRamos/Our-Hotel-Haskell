@@ -9,6 +9,7 @@ import Models.Room (createRoomTable)
 import Models.RoomService (createRoomServiceTable)
 import Models.Service (createServiceTable)
 import Models.User (createUserTable, createUser, User (..), Role (ADMIN), getUser)
+import Models.Review (createReviewTable)
 import Control.Monad (when)
 import Data.Maybe (isNothing)
 
@@ -33,4 +34,5 @@ startDb = do
   createRoomTable conn
   createRoomServiceTable conn
   createServiceTable conn
+  createReviewTable conn
   return conn

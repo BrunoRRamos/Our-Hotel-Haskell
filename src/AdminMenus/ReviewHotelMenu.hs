@@ -14,7 +14,7 @@ hotelReviewMenu conn = do
     putStrLn "6. Last month reservations"
     putStrLn "7. This month reservations"
     putStrLn "8. Exit"
-    putStrLn "Enter your choice: "
+    putStrLn "\nEnter your choice: "
     choice <- getLine
     case choice of
         "1" -> do

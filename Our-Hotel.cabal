@@ -39,6 +39,7 @@ library
       MainMenu
       Models.Message
       Models.Reservation
+      Models.Review
       Models.Room
       Models.RoomService
       Models.Service
@@ -52,6 +53,7 @@ library
       Util.RoomAdmin
       Util.RoomService
       Util.Service
+      Util.StayReview
       Util.UserAdmin
   other-modules:
       Paths_Our_Hotel

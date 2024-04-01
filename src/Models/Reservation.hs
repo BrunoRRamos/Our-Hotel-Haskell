@@ -14,6 +14,7 @@ import Database.SQLite.Simple
 import GHC.Generics
 import Models.Room (Room, getAllRooms, toggleRoomAvailiable, toggleRoomReserved)
 import qualified Models.Room as Models
+import Util.StayReview (generateStayReview)
 
 data Reservation = Reservation
   { _id :: Int,
@@ -119,8 +120,7 @@ checkIn conn reservationId = do
 
 checkOut :: Connection -> Int -> IO ()
 checkOut conn reservationId = do
+  generateStayReview conn reservationId
   roomId <- getRoomId conn reservationId
   toggleRoomAvailiable conn roomId
-  -- Por função de avaliação
-  -- Por função que salva dados da estadia
   putStr "CheckOut done, GoodBye !"
