@@ -30,6 +30,10 @@ data Service = Service
 
 instance FromRow Service
 
+instance Eq Service where
+  (==) :: Service -> Service -> Bool
+  (==) service1 service2 = _id service1 == _id service2
+
 createServiceTable :: Connection -> IO ()
 createServiceTable conn =
   execute_

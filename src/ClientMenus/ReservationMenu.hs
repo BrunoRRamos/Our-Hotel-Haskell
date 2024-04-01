@@ -10,7 +10,7 @@ import Database.SQLite.Simple
 import Models.Reservation
 import Models.User
 import Util.IO (OperationCancelledException, clearScreen, pressEnter)
-import Util.Reservation (cancelReservation, editReservation, makeReservation)
+import Util.Reservation (cancelReservation, editReservation, makeReservation, reservationOverview)
 
 reservationMenu :: Connection -> User -> IO ()
 reservationMenu conn user = do
@@ -19,7 +19,8 @@ reservationMenu conn user = do
     "1. Make a reservation\n\
     \2. Edit a reservation\n\
     \3. Cancel a reservation\n\
-    \4. Go back"
+    \4. Reservation overview\n\
+    \5. Go back"
   cmd <- getLine
 
   case cmd of
@@ -49,7 +50,14 @@ reservationMenu conn user = do
         Right res -> if res then putStrLn "Reservation canceled successfully!" else putStrLn "Reservation not canceled!"
       pressEnter
       reservationMenu conn user
-    "4" -> return ()
+    "4" -> do
+      result <- try (reservationOverview conn user) :: IO (Either OperationCancelledException ())
+      case result of
+        Left _ -> void (putStrLn "Operation cancelled!")
+        Right _ -> return ()
+      pressEnter
+      reservationMenu conn user
+    "5" -> return ()
     _ -> do
       print "Invalid command. Please try again"
       reservationMenu conn user

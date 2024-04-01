@@ -30,9 +30,9 @@ getAllRoomServices :: Connection -> IO [RoomService]
 getAllRoomServices conn = query_ conn "SELECT * FROM room_service" :: IO [RoomService]
 
 getRoomServicesByReservation :: Connection -> Int -> IO [RoomService]
-getRoomServicesByReservation conn roomId = do
+getRoomServicesByReservation conn reservationId = do
   room_services <- getAllRoomServices conn
-  return $ filter (\room -> _reservationId room == roomId) room_services
+  return $ filter (\rs -> _reservationId rs == reservationId) room_services
 
 createRoomService :: Connection -> RoomService -> IO ()
 createRoomService conn roomService = do
