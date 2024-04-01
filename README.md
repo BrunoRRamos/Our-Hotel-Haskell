@@ -23,7 +23,8 @@
    ```
 4. Para realizar o login inicial, você deve se logar da seguinte maneira (este é o login de administrador):
    ```shell
-    > email: admin@admin.com > password: admin
+    > email: admin@admin.com
+    > password: admin
    ```
 
 <hr>
