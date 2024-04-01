@@ -24,7 +24,7 @@ clientMenu conn user args = do
       _ <- reservationMenu conn user
       loop
     "2" -> do
-      roomServiceMenu conn args
+      roomServiceMenu conn user
       loop
     "3" -> do
       checkInOutMenu conn args
