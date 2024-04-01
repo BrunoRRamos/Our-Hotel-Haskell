@@ -6,7 +6,7 @@ import Util.UserAdmin (createUserAdmin, deleteUserAdmin)
 
 usersMenu :: Connection -> IO ()
 usersMenu conn  = do
-  putStrLn "Available Commands"
+  putStrLn "\nAvailable Commands"
   putStrLn "1. List Users"
   putStrLn "2. Add Admin User"
   putStrLn "3. Delete User"

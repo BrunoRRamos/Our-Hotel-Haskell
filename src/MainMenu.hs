@@ -16,6 +16,9 @@ mainMenu :: [String] -> IO ()
 mainMenu args = do
   clearScreen
   conn <- startDb
+  putStrLn "╔══════════════════════════════════════════════════════════════════════════════╗"
+  putStrLn "║                      WELCOME TO OURHOTEL, ENJOY YOUR STAY!                   ║"
+  putStrLn "╚══════════════════════════════════════════════════════════════════════════════╝"
   loggedUser <- loginMenu conn
   let user = case loggedUser of
         Just u -> u

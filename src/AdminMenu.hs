@@ -26,23 +26,34 @@ adminMenu conn user args = do
       usersMenu conn
       loop args
     "2" -> do
-      putStrLn "--- Rooms ---"
+      putStrLn "\n--- Rooms ---"
       roomMenu conn
       loop args
     "3" -> do
-      putStrLn "--- Services ---"
+      putStrLn "\n--- Services ---"
       serviceMenu conn
       loop args
     "4" -> do
-      putStrLn "--- Hotel Review ---"
+      putStrLn "\n--- Hotel Review ---"
       hotelReviewMenu conn
       loop args
     "5" -> do
-      putStrLn "--- Chat ----"
+      putStrLn "\n--- Chat ----"
       chatMenu conn args
       loop args 
     "6" -> do
-      putStrLn "!!! exit !!!"
+      putStrLn "╔══════════════════════════════════════════════════════════════════════════════╗"
+      putStrLn "║                    THANK YOU FOR VISITING, COME BACK SOON!                   ║"
+      putStrLn "║══════════════════════════════════════════════════════════════════════════════║"
+      putStrLn "║                                    TEAM:                                     ║"
+      putStrLn "║══════════════════════════════════════════════════════════════════════════════║"
+      putStrLn "║                               Bruno Rodrigues                                ║"
+      putStrLn "║                              José Gabriel Melo                               ║"
+      putStrLn "║                             Pedro Henrique Costa                             ║"
+      putStrLn "║                              Pedro Silva Filho                               ║"
+      putStrLn "║                                Suelen Felix                                  ║"
+      putStrLn "╚══════════════════════════════════════════════════════════════════════════════╝" 
+      putStrLn "Goodbye!"
     _ -> do
       putStrLn "Invalid command"
       loop args
