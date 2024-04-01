@@ -30,6 +30,7 @@ library
       AdminMenus.RoomMenu
       AdminMenus.UsersMenu
       ClientMenu
+      ClientMenus.ChatMenu
       ClientMenus.CheckInOutMenu
       ClientMenus.ReservationMenu
       ClientMenus.RoomServiceMenu

@@ -6,15 +6,12 @@ module Models.Message (module Models.Message) where
 
 import Database.SQLite.Simple
 import GHC.Generics
-import Data.Time.Calendar
-import Data.Time.Format.ISO8601 (iso8601Show)
 
 data Message =  Message
     { _id :: Int,
-      _senderId :: Int,
-      _recipientId :: Int,
-      _message :: String,
-      _sentDate :: Day
+      _sender_email :: String,
+      _recipient_email :: String,
+      _message :: String
     }
     deriving (Show, Generic)
 
@@ -26,41 +23,45 @@ createMessageTable conn =
      conn
      "CREATE TABLE IF NOT EXISTS message (\
      \id INTEGER PRIMARY KEY AUTOINCREMENT,\
-     \sender_id INTEGER NOT NULL,\
-     \recipient_id INTEGER NOT NULL,\
+     \sender_email TEXT NOT NULL,\
+     \recipient_email TEXT NOT NULL,\
      \message TEXT NOT NULL,\
-     \sentDate TEXT NOT NULL,\
-     \FOREIGN KEY (sender_id) REFERENCES user(id),\
-     \FOREIGN KEY (recipient_id) REFERENCES user(id))"
+     \FOREIGN KEY (sender_email) REFERENCES user(email),\
+     \FOREIGN KEY (recipient_email) REFERENCES user(email))"
 
 createMessage :: Connection -> Message -> IO ()
 createMessage conn message = do
     execute
      conn
-     "INSERT INTO message (sender_id, recipient_id, message) VALUES (?, ?, ?)"
-     ( _senderId message,
-       _recipientId message,
-       _message message,
-       iso8601Show $ _sentDate message
+     "INSERT INTO message (sender_email, recipient_email, message) VALUES (?, ?, ?)"
+     ( _sender_email message,
+       _recipient_email message,
+       _message message
      )
 
 getAllMessages :: Connection -> IO [Message]
 getAllMessages conn = query_ conn "SELECT * FROM message" :: IO [Message]
 
-{-
-joinEqualSender :: [Message] -> Int -> [Message]
+joinEqualSender :: [Message] -> String -> [Message]
 joinEqualSender [] _ = []
-joinEqualSender (h : t) senderId =
-    if _senderId h == senderId
-        then h : joinEqualSender t senderId
-        else joinEqualSender t senderId
+joinEqualSender (h : t) sender_email =
+    if _sender_email h == sender_email
+        then h : joinEqualSender t sender_email
+        else joinEqualSender t sender_email
 
-getSenderMessages :: Connection -> Int -> IO [Message]
-getSenderMessages conn senderId = do
-    messages <- getAllMessages conn
-    return (joinEqualSender  messages senderId)
+joinEqualRecipient :: [Message] -> String -> [Message]
+joinEqualRecipient [] _ = []
+joinEqualRecipient (h : t) recipient_email =
+    if _recipient_email h == recipient_email
+        then h : joinEqualSender t recipient_email
+        else joinEqualSender t recipient_email
 
-getMessageRecipient :: Connection -> Int -> IO [Message]
-getMessageRecipient conn recipientId = do
+getSenderMessages :: Connection -> String -> IO [Message]
+getSenderMessages conn sender_email = do
     messages <- getAllMessages conn
--}
+    return (joinEqualSender messages sender_email)
+
+getMessageRecipient :: Connection -> String -> IO [Message]
+getMessageRecipient conn recipient_email = do
+    messages <- getAllMessages conn
+    return (joinEqualRecipient messages recipient_email)
