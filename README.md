@@ -22,7 +22,10 @@
     > stack run
    ```
 4. Para realizar o login inicial, você deve se logar da seguinte maneira (este é o login de administrador):
-```shell > email: admin@admin.com > password: admin
+   ```shell
+    > email: admin@admin.com > password: admin
+   ```
+
 <hr>
 
 ![Badge em Desenvolvimento](http://img.shields.io/static/v1?label=STATUS&message=EM%20DESENVOLVIMENTO&color=GREEN&style=for-the-badge)
