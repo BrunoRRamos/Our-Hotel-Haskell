@@ -28,6 +28,7 @@ library
       AdminMenu
       AdminMenus.ReviewHotelMenu
       AdminMenus.RoomMenu
+      AdminMenus.ServiceMenu
       AdminMenus.UsersMenu
       ClientMenu
       ClientMenus.CheckInOutMenu
@@ -39,6 +40,7 @@ library
       Models.Reservation
       Models.Review
       Models.Room
+      Models.RoomService
       Models.Service
       Models.User
       Util.CheckInOut
@@ -49,6 +51,7 @@ library
       Util.ReviewHotel
       Util.RoomAdmin
       Util.RoomService
+      Util.Service
       Util.StayReview
       Util.UserAdmin
   other-modules:

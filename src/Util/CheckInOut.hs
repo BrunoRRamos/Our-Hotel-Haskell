@@ -17,7 +17,7 @@ checkInInput conn = do
         Left (_ :: SomeException) ->  do
             putStrLn "Error: Invalid reservation ID or No reservation found.\nCheck your reservation ID this must be a number."
             checkInInput conn
-        Right _ -> print ""
+        Right _ -> return ()
    
 checkOutInput :: Connection -> IO ()
 checkOutInput conn = do
@@ -30,4 +30,4 @@ checkOutInput conn = do
         Left (_ :: SomeException) ->  do
             putStrLn "Error: Invalid reservation ID or No reservation found.\nCheck your reservation ID this must be a number."
             checkInInput conn
-        Right _ -> print ""
+        Right _ -> return ()
