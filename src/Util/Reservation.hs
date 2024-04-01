@@ -71,7 +71,11 @@ reservationForm conn user = do
       day
 
   rooms <- getAvailableRooms conn start end
-  mapM_ printRoom rooms
+  if null rooms 
+    then do
+     noRoomsAvaliable
+     return ()
+  else mapM_ printRoom rooms
 
   room <-
     askForInput
@@ -93,6 +97,11 @@ reservationForm conn user = do
         _userId = Models.User._email user,
         _rating = Nothing
       }
+
+noRoomsAvaliable :: IO ()
+noRoomsAvaliable = do
+  putStr "No rooms availiable for these dates.\n"
+  
 
 validateDate :: Day -> IO (Maybe Day)
 validateDate date = do
