@@ -13,8 +13,7 @@ data Review = Review
         reservationId :: Int,
         rating :: Int,
         comments :: String,
-        date :: UTCTime,
-        userId :: String
+        date :: UTCTime
     } deriving (Show, Generic)
 
 instance FromRow Review
@@ -24,19 +23,18 @@ createReviewTable conn =
   execute_ conn $
     "CREATE TABLE IF NOT EXISTS reviews (\
     \review_id INTEGER PRIMARY KEY AUTOINCREMENT,\
-    \reservation_id INTEGER REFERENCES reservation(id),\
+    \reservation_id INTEGER NOT NULL,\
     \rating INTEGER,\
     \comments TEXT,\
-    \date TEXT,\
-    \user_id TEXT\
+    \date TEXT\
     \)"
 
 insertReview :: Connection -> Review -> IO ()
 insertReview conn review =
   execute
     conn
-    "INSERT INTO reviews (reservation_id, rating, comments, date, user_id) VALUES (?, ?, ?, ?, ?)"
-    (reservationId review, rating review, comments review, show $ date review, userId review)
+    "INSERT INTO reviews (reservation_id, rating, comments, date) VALUES (?, ?, ?, ?)"
+    (reservationId review, rating review, comments review, show $ date review)
 
 getAllReviews :: Connection -> IO [Review]
 getAllReviews conn = query_ conn "SELECT * FROM reviews"

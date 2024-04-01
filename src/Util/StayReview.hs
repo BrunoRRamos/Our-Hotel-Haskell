@@ -4,21 +4,18 @@ module Util.StayReview
 
 import Data.Time.Clock
 import Database.SQLite.Simple
-import Models.User (User(..))
-import Models.Reservation (Reservation(..))
 import Models.Review (Review(..), insertReview)
 
 data StayReview = StayReview
     {   _reservationId :: Int,
         _rating :: Int,
         _comments :: String,
-        _date :: UTCTime,
-        _userId :: String
+        _date :: UTCTime
     }
     deriving (Show)
 
-generateStayReview :: Connection -> Reservation -> User -> IO ()
-generateStayReview conn reservation user = do
+generateStayReview :: Connection -> Int -> IO ()
+generateStayReview conn reservation = do
     putStrLn "Please provide your rating (from 1 to 5): "
     ratingInput <- getLine
     let rating = read ratingInput :: Int
@@ -26,11 +23,9 @@ generateStayReview conn reservation user = do
     comments <- getLine
     currentTime <- getCurrentTime
     insertReview conn $ Review
-        {   reviewId = 0,
-            reservationId = _id reservation,
+        {   reservationId = reservation,
             rating = rating,
             comments = comments,
-            date = currentTime,
-            userId = _email user
+            date = currentTime
         }
     putStrLn "Review added successfully!"

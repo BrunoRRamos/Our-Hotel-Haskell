@@ -29,5 +29,5 @@ checkOutInput conn = do
     case result of
         Left (_ :: SomeException) ->  do
             putStrLn "Error: Invalid reservation ID or No reservation found.\nCheck your reservation ID this must be a number."
-            checkInInput conn
+            checkOutInput conn
         Right _ -> return ()

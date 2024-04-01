@@ -6,6 +6,7 @@ import AdminMenus.ServiceMenu (serviceMenu)
 import Database.SQLite.Simple (Connection)
 import ClientMenus.ChatMenu (chatMenu)
 import Models.User (User)
+import AdminMenus.UsersMenu (usersMenu)
 
 adminMenu :: Connection -> User -> [String] -> IO ()
 adminMenu conn user args = do
@@ -21,26 +22,27 @@ adminMenu conn user args = do
   let nextArgs = words cmd
   case head nextArgs of
     "1" -> do
-      putStrLn "Users"
+      putStrLn "\n--- Users ---"
+      usersMenu conn
       loop args
     "2" -> do
-      putStrLn "Rooms"
+      putStrLn "--- Rooms ---"
       roomMenu conn
       loop args
     "3" -> do
-      putStrLn "Services"
+      putStrLn "--- Services ---"
       serviceMenu conn
       loop args
     "4" -> do
-      putStrLn "Hotel Review"
+      putStrLn "--- Hotel Review ---"
       hotelReviewMenu conn
       loop args
     "5" -> do
-      putStrLn "Hotel Review"
+      putStrLn "--- Chat ----"
       chatMenu conn args
       loop args 
     "6" -> do
-      putStrLn "exit"
+      putStrLn "!!! exit !!!"
     _ -> do
       putStrLn "Invalid command"
       loop args
